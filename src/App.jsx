@@ -2,9 +2,9 @@
 function App() {
  return (
   <div>
-    <h2>leoooo</h2>
+    <h2>M6</h2>
     <br />
-    <h2>lkar gadi wl7wa badi</h2>
+    <h2>3acha lmalik</h2>
   </div>
  )
 }
