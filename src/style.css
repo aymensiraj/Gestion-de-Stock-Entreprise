@@ -1,8 +1,1 @@
 @import "tailwindcss";
-:root {
-  --fl-heading-text: #333333;
-  --fl-body-bg: #f2f2f2;
-  --fl-body-text: #757575;
-  --fl-accent: #c51231;
-  --fl-accent-hover: #27292a;
-}
