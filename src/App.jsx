@@ -1,12 +1,16 @@
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
+import LandingPage from './pages/LandingPage'
+import Dashboard from './pages/Dashboard'
 
 function App() {
- return (
-  <div>
-    <h2>M6</h2>
-    <br />
-    <h2>3acha lmalik</h2>
-  </div>
- )
+  return (
+    <Router basename="/Gestion-de-Stock-Entreprise">
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
+  )
 }
 
 export default App
