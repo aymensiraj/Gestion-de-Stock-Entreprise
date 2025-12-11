@@ -21,7 +21,7 @@ function LandingPage() {
     <div className="min-h-screen bg-gray-100 text-gray-800 flex flex-col">
 
       <header className="w-full p-5 bg-white shadow">
-        <img src={logo} alt="Atlas Manufacturing" className="w-40 py-3 px-3 mx-6" />
+        <img src={logoImg} alt="Atlas Manufacturing" className="w-40 py-3 px-3 mx-6" />
       </header>
 
       <section className="flex flex-col items-center text-center mt-16 px-4">
@@ -75,13 +75,13 @@ function LandingPage() {
         <div className="grid sm:grid-cols-2 gap-8">
 
           <div className="flex flex-col items-center bg-white p-5 shadow rounded-xl">
-            <img src={ouassim} alt="Ouassim" className="w-30 h-30 rounded-full border"/>
+            <img src={ouassimImg} alt="Ouassim" className="w-30 h-30 rounded-full border"/>
             <h4 className={`text-lg font-bold mt-4 ${colors.red.textRed}`}>Ouassim Babakhali</h4>
             <p className="text-gray-600">Développeur Front-End</p>
           </div>
 
           <div className="flex flex-col items-center bg-white p-5 shadow rounded-xl">
-            <img src={aymen} alt="Aymen" className="w-30 h-30 rounded-full border"/>
+            <img src={aymenImg} alt="Aymen" className="w-30 h-30 rounded-full border"/>
             <h4 className={`text-lg font-bold mt-4 ${colors.red.textRed}`}>Aymen Siraj</h4>
             <p className="text-gray-600">Développeur Front-End</p>
           </div>
