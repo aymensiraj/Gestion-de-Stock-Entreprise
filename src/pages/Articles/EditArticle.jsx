@@ -161,7 +161,7 @@ useEffect(() => {
 
     let hasError = false;
 
-    if (!articleInfos.name.trim() || articleInfos.name.length < 3) {
+    if (!articleInfos.name.trim() || articleInfos.name.length < 2) {
       setErrors((prevErrors) => ({ ...prevErrors, nameError: true }));
       hasError = true;
     }
