@@ -38,6 +38,9 @@ const styles = {
 };
 
 function AddArticle() {
+
+const articlesState = useSelector((data) => data.articles.articles);
+
 const [articles, setArticles] = useState([]);
 const [loading, setLoading] = useState(true);
 
@@ -80,8 +83,8 @@ const [articleInfos, setArticleInfos] = useState({
 
 
 useEffect(() => {
-  if (articles.length > 0 && id) {
-    const article = articles.find((art) => art.id == id);
+  if (articlesState.length > 0 && id) {
+    const article = articlesState.find((art) => art.id == id);
     if (article) {
       setArticleInfos({
         id: article.id,
@@ -95,7 +98,7 @@ useEffect(() => {
       });
     }
   }
-}, [articles, id]);
+}, [articlesState, id]);
 
  const handlePut = (id) => {
   console.log(id)
@@ -119,7 +122,6 @@ useEffect(() => {
  	.catch(error => {console.error("Erreur PUT:", error);});
  };
 
-  const articlesState = useSelector((data) => data.articles.articles);
   const fournisseurs = useSelector((data) => data.articles.fournisseurs);
   const categories = useSelector((data) => data.articles.categories);
   const unites = useSelector((data) => data.articles.unites);

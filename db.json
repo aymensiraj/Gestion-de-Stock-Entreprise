@@ -19,36 +19,6 @@
       "unit": "m",
       "seuil_min": 50,
       "fournisseur": "SteelCo"
-    },
-    {
-      "id": "3",
-      "name": "Acer ConceptD 2",
-      "reference": "PO1256",
-      "category": "Hardware",
-      "quantity": 20,
-      "unit": "Box",
-      "seuil_min": 3,
-      "fournisseur": "Atlas Supplies"
-    },
-    {
-      "id": 4,
-      "name": "Acer ConceptD 2",
-      "reference": "VB5050",
-      "category": "Electrical",
-      "quantity": 20,
-      "unit": "kg",
-      "seuil_min": 2,
-      "fournisseur": "Fasteners Morocco"
-    },
-    {
-      "id": 5,
-      "name": "Acer ConceptD 2",
-      "reference": "VB5050",
-      "category": "Hardware",
-      "quantity": 10,
-      "unit": "kg",
-      "seuil_min": 10,
-      "fournisseur": "Fasteners Morocco"
     }
   ],
   "movements": []
