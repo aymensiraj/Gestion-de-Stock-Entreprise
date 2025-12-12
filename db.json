@@ -1,1 +1,35 @@
-{}
+{
+  "articles": [
+    {
+      "id": "1",
+      "name": "Vis à bois 5x50",
+      "reference": "VB5050",
+      "category": "Hardware",
+      "quantity": 150,
+      "unit": "Box",
+      "seuil_min": 20,
+      "fournisseur": "MetalPro"
+    },
+    {
+      "id": "2",
+      "name": "Câble électrique 2.5mm²",
+      "reference": "CE25",
+      "category": "Electrical",
+      "quantity": 300,
+      "unit": "m",
+      "seuil_min": 50,
+      "fournisseur": "SteelCo"
+    },
+    {
+      "id": "3",
+      "name": "Acer ConceptD 2",
+      "reference": "PO1256",
+      "category": "Hardware",
+      "quantity": 20,
+      "unit": "Box",
+      "seuil_min": 3,
+      "fournisseur": "Atlas Supplies"
+    }
+  ],
+  "movements": []
+}
