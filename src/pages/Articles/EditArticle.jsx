@@ -41,29 +41,6 @@ function AddArticle() {
 
 const articlesState = useSelector((data) => data.articles.articles);
 
-const [articles, setArticles] = useState([]);
-const [loading, setLoading] = useState(true);
-
-
-useEffect(() => {
- 	const API_URL = 'http://localhost:4000/articles'; 
- 	setLoading(true);
-
- 	axios.get(API_URL)
- 	.then(response => {
-
- 	setArticles(response.data);
- 	})
-
- 	.catch(error => {
- 	console.error("Erreur GET:", error);
- 	})
-
- 	.finally(() => {
- 	setLoading(false);
- 	});
-}, []);
-
   const { id } = useParams();
   const navigate = useNavigate();
   const handleNavigate = () => {
@@ -242,8 +219,6 @@ useEffect(() => {
       fournisseur: "",
     });
   }
-
-  if (loading) return <p>Chargement des Articles...</p>;
 
   return (
     <div className={`${styles.mainDiv}`}>
