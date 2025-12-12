@@ -32,7 +32,8 @@ const styles = {
   span : "text-sm text-gray-600 font-semibold",
   cardStyle : "bg-white rounded-xl shadow-md p-6",
   cardSpan : "text-blue-600 font-semibold",
-  invalidInput : "border-red-500 bg-red-50",
+  invalidInput : "border-red-500 focus:ring-red-500",
+  validInput : "border-gray-300",
   errorText : "text-red-500 text-sm"
 };
 
@@ -189,7 +190,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
       setErrors((prevErrors) => ({ ...prevErrors, unitError: true }));
       hasError = true;
     }
-    if (Number(articleInfos.seuil_min) < 0 || Number(articleInfos.seuil_min) > Number(articleInfos.quantity)) {
+    if (Number(articleInfos.seuil_min) <= 0 || Number(articleInfos.seuil_min) > Number(articleInfos.quantity)) {
       setErrors((prevErrors) => ({ ...prevErrors, seuil_minError: true }));
       hasError = true;
     }
@@ -257,7 +258,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* Nom */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Nom</label>
-              <input type="text" value={articleInfos.name} name='name' onChange={HandleChange} className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              <input type="text" value={articleInfos.name} name='name' onChange={HandleChange} className={`${errors.nameError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 placeholder="Entrer le nom"/>
                 {errors.nameError && ( <p className={`${styles.errorText}`}> Le nom de l’article doit contenir au moins 3 caractères. </p>)}
             </div>
@@ -265,7 +266,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* reference */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Référence</label>
-              <input type="text" value={articleInfos.reference} name='reference' onChange={HandleChange} className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              <input type="text" value={articleInfos.reference} name='reference' onChange={HandleChange} className={`${errors.referenceError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 placeholder="Entrer la référence"/>
                 {errors.referenceError && (<p className={`${styles.errorText}`}>La référence est obligatoire.</p>)}
             </div>
@@ -273,7 +274,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* category */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Catégorie</label>
-              <select value={articleInfos.category} name='category' onChange={HandleChange} className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <select value={articleInfos.category} name='category' onChange={HandleChange} className={`${errors.categoryError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}>
                 <option value="">Choisir une catégorie</option>
                 {categories.map((category, index) => (
                   <option key={index} value={category}>{category}</option>
@@ -285,7 +286,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* quantite */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Quantité</label>
-              <input type="number" value={articleInfos.quantity} name='quantity' onChange={HandleChange} className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              <input type="number" value={articleInfos.quantity} name='quantity' onChange={HandleChange} className={`${errors.quantityError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 placeholder="Entrer la quantité"/>
                 {errors.quantityError && (<p className={`${styles.errorText}`}>La quantité doit être supérieure à 0.</p>)}
             </div>
@@ -293,7 +294,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* unite */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Unité</label>
-              <select value={articleInfos.unit} name='unit' onChange={HandleChange} className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <select value={articleInfos.unit} name='unit' onChange={HandleChange} className={`${errors.unitError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}>
                 <option value="">Choisir une unité</option>
                 {unites.map((unite, index) => (
                   <option key={index} value={unite.symbol}>{unite.name}</option>
@@ -305,7 +306,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* seuil min */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Seuil Min</label>
-              <input value={articleInfos.seuil_min} name='seuil_min' onChange={HandleChange} type="number" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+              <input value={articleInfos.seuil_min} name='seuil_min' onChange={HandleChange} type="number" className={`${errors.seuil_minError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}
                 placeholder="Entrer la Seuil min"/>
                 {errors.seuil_minError && (<p className={`${styles.errorText}`}>Le seuil minimum doit être positif et inférieur à la quantité.</p>)}
             </div>
@@ -313,7 +314,7 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             {/* fournisseur */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Fournisseur</label>
-              <select value={articleInfos.fournisseur} name='fournisseur' onChange={HandleChange} className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+              <select value={articleInfos.fournisseur} name='fournisseur' onChange={HandleChange} className={`${errors.fournisseurError ? styles.invalidInput : styles.validInput} w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-600`}>
                 <option value="">Choisir un Fournisseur</option>
                 {fournisseurs.map((fournisseur, index) => (
                   <option key={index} value={fournisseur}>{fournisseur}</option>

@@ -32,6 +32,9 @@ const styles = {
   span : "text-sm text-gray-600 font-semibold",
   cardStyle : "bg-white rounded-xl shadow-md p-6",
   cardSpan : "text-blue-600 font-semibold",
+  invalidInput : "border-red-500 focus:ring-red-500",
+  validInput : "border-gray-300",
+  errorText : "text-red-500 text-sm"
 };
 
 function MovementForm() {
