@@ -8,9 +8,9 @@ const movementsSlice = createSlice({
   name: "movements",
   initialState,
   reducers: {
-    addMovement: (state, action) => {
-      state.push(action.payload);
-    }
+    // addMovement: (state, action) => {
+    //   state.push(action.payload);
+    // }
   }
 });
 

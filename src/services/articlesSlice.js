@@ -29,10 +29,6 @@ const articlesSlice = createSlice({
       if (index !== -1) {
         state.articles[index] = action.payload;
       }
-    },
-
-    deleteArticle: (state, action) => {
-      state.articles = state.articles.filter(a => a.id !== action.payload);
     }
   }
 });
