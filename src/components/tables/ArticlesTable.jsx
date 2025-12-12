@@ -35,7 +35,9 @@ const styles = {
 
 function ArticlesTable() {
 
-  const [articles, setArticles] = useState([]);
+  const articlesState = useSelector((state) => state.articles.articles);
+  console.log(articlesState);
+  const [articles, setArticles] = useState([]); 
   const [loading, setLoading] = useState(true);
   useEffect(() => {
     const API_URL = 'http://localhost:4000/articles'; 
@@ -85,7 +87,7 @@ function ArticlesTable() {
 
           {/* Body */}
           <tbody>
-            {articles.map((article, index) => (
+            {articlesState.map((article, index) => (
               <tr key={index} className="hover:bg-gray-50 transition">
                 <td className={`${styles.td}`}>{article.name}</td>
                 <td className="px-6 py-4 text-gray-600 text-center">{article.category}</td>

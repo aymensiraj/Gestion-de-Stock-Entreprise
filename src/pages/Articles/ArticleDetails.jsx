@@ -1,4 +1,5 @@
 import { useState, useEffect, React } from 'react'
+import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaList } from "react-icons/fa6";
@@ -35,6 +36,8 @@ const styles = {
 
 function ArticleDetails() {
 
+  const articlesState = useSelector((state) => state.articles.articles);
+
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -58,7 +61,7 @@ function ArticleDetails() {
   }, []);
 
   const { id } = useParams();
-  const article = articles.find((art) => art.id == id);
+  const article = articlesState.find((art) => art.id == id);
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate(-1);
