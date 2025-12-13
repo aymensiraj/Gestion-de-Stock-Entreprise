@@ -29,9 +29,20 @@ const articlesSlice = createSlice({
       if (index !== -1) {
         state.articles[index] = action.payload;
       }
+    },
+    updateQuantite : (state,action) => {
+      const index = state.articles.findIndex(a => a.name === action.payload.article);
+      if (action.payload.type == "Entrée") {
+        state.articles[index].quantity += action.payload.quantite;
+      }
+      if (action.payload.type=="Sortie") {
+        state.articles[index].quantity -= action.payload.quantite;
+      }
     }
+    
   }
 });
 
-export const { addArticle, updateArticle, deleteArticle } = articlesSlice.actions;
+
+export const { addArticle, updateArticle, deleteArticle,updateQuantite } = articlesSlice.actions;
 export default articlesSlice.reducer;

@@ -5,6 +5,8 @@ import { FaList } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { addMovement } from '../../services/movementsSlice';
+import {updateQuantite} from "../../services/articlesSlice"
+
 
 const styles = {
   gray : {
@@ -126,6 +128,7 @@ function MovementForm() {
   }
   
   // nsifto lvalue li jbna mn form wnsiftohom l store
+  const [quantiteErrorV2,setQuantiteErrorV2] = useState(false)
   const dispatch = useDispatch()
   const handleAddMovement = ()=>{
           const newMovement = {
@@ -136,26 +139,86 @@ function MovementForm() {
           commentaire: movementsInfo.commentaire,
           date: movementsInfo.date
         };
+        //bach mli tkon quantity dyl new movement kbr mn quantity l9dima maydirch sortie ga3 
+        const index = articles.findIndex(a => a.id === newMovement.id);
+        if(newMovement.quantite>articles[index].quantity && newMovement.type=="Sortie"){
+          setQuantiteErrorV2(true)
+          return
+        }
         dispatch(addMovement(newMovement));
+        dispatch(updateQuantite(newMovement))
         console.log("Article ajouté au store Redux:", newMovement);
-        setMovementsInfos({
-          id: null,
-          article: "",
-          type: "",
-          quantite: 0,
-          commentaire: "",
-          date : ""
-        });
+
   }
 
   
+
+
+  const [errors,setErrors] = useState(
+  {
+      articleError: false,
+      typeError: false,
+      quantiteError: false,
+      commentaireError: false,
+      dateError: false,
+  }  
+  )
+  const handleErrors = () => {
+
+    setErrors({
+      articleError: false,
+      typeError: false,
+      quantiteError: false,
+      commentaireError: false,
+      dateError: false,
+    })
+
+    let hasError = false;
+
+    if (!movementsInfo.article.trim() ) {
+      setErrors((prevErrors) => ({ ...prevErrors, articleError: true }));
+      hasError = true;
+    }
+    if (!movementsInfo.type.trim()) {
+      setErrors((prevErrors) => ({ ...prevErrors, typeError: true }));
+      hasError = true;
+    }
+
+    if (movementsInfo.quantite <= 0) {
+      setErrors((prevErrors) => ({ ...prevErrors, quantiteError: true }));
+      hasError = true;
+    }
+    if (!movementsInfo.commentaire.trim()) {
+      setErrors((prevErrors) => ({ ...prevErrors, commentaireError: true }));
+      hasError = true;
+    }
+
+    if (!movementsInfo.date.trim()) {
+      setErrors((prevErrors) => ({ ...prevErrors, dateError: true }));
+      hasError = true;
+    }
+
+    if (hasError) return true;
+    return false;
+  }
   const handleSubmit = (e)=>{
     e.preventDefault();
+    const hasErrors = handleErrors();
+    if (hasErrors) {
+      console.log("Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.");
+      return;
+    } 
     handlePost()
     handleAddMovement()
-
+    setMovementsInfos({
+      id: null,
+      article: "",
+      type: "",
+      quantite: 0,
+      commentaire: "",
+      date : ""
+      });
   }
-
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate(-1);
@@ -193,6 +256,8 @@ function MovementForm() {
                   ))
                 }
               </select>
+              {errors.articleError && ( <p className={`${styles.errorText}`}>Veuillez sélectionner une article.</p>)}
+
             </div>
 
             {/* Type */}
@@ -206,6 +271,7 @@ function MovementForm() {
 
                 <label className="flex items-center gap-2">
                   <input value="Sortie" checked={movementsInfo.type=="Sortie"} onChange={HandleChange} type="radio" name="type" />
+                  {errors.typeError && (<p className={`${styles.errorText}`}>Veuillez sélectionner le type</p>)}
                   <span className={`${styles.red.textRed}`}>Sortie</span>
                 </label>
               </div>
@@ -216,6 +282,9 @@ function MovementForm() {
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Quantité</label>
               <input value={movementsInfo.quantite}  onChange={HandleChange} name='quantite' type="number" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="Entrer la quantité"/>
+              {quantiteErrorV2 && (<p className={`${styles.errorText}`}>La quantité doit être supérieure à quantite dans article.</p>)}
+              {errors.quantiteError && (<p className={`${styles.errorText}`}>La quantité doit être supérieure à 0.</p>)}
+
             </div>
 
             {/* Comment */}
@@ -223,12 +292,14 @@ function MovementForm() {
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Commentaire</label>
               <textarea value={movementsInfo.commentaire}  onChange={HandleChange} name='commentaire' rows="4" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
                 placeholder="Commentaire (optionnel)..."></textarea>
+              {errors.commentaireError && (<p className={`${styles.errorText}`}>Le champ de commentaire est vide</p>)}
             </div>
 
             {/* Date */}
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Date</label>
               <input value={movementsInfo.date}  onChange={HandleChange} name='date' type="date" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"/>
+              {errors.dateError && (<p className={`${styles.errorText}`}>Entre la date</p>)}
             </div>
 
             {/* Submit Button */}
