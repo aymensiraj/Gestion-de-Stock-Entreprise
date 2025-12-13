@@ -1,1 +1,34 @@
-{}
+{
+  "articles": [
+    {
+      "id": "1",
+      "name": "Vis à bois 5x500",
+      "reference": "VB5050",
+      "category": "Hardware",
+      "quantity": 150,
+      "unit": "Box",
+      "seuil_min": 20,
+      "fournisseur": "MetalPro"
+    },
+    {
+      "id": "2",
+      "name": "Câble électrique 2.5mm²",
+      "reference": "CE25",
+      "category": "Electrical",
+      "quantity": 300,
+      "unit": "m",
+      "seuil_min": 50,
+      "fournisseur": "SteelCo"
+    }
+  ],
+  "movements": [
+    {
+      "id": 2,
+      "article": "Vis à bois 5x50",
+      "type": "Entrée",
+      "quantite": 19,
+      "commentaire": "skk",
+      "date": "2000-05-12"
+    }
+  ]
+}

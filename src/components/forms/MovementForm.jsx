@@ -1,0 +1,246 @@
+import { React, useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
+import { FaList } from "react-icons/fa6";
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import { addMovement } from '../../services/movementsSlice';
+
+const styles = {
+  gray : {
+    textGray800 : "text-gray-800",
+    textGray700 : "text-gray-700",
+    textGray500 : "text-gray-500",
+    bgGray100 : "bg-gray-100",
+  },
+  red : {
+    bgRed : "bg-[#c51231]",
+    bgRedHover : "hover:bg-[#a01028]",
+    textRed : "text-[#c51231]",
+    spanRed : "text-red-600",
+  },
+  blue : {
+    textBlue : "text-blue-600",
+  },
+  green : {
+    bgGreen600 : "bg-green-600",
+    textGreen700 : "text-green-700",
+    bgGreenHover : "hover:bg-green-700",
+  },
+  textYellow : "text-yellow-600",
+  mainDiv : "min-h-screen bg-gray-100 text-gray-800 flex flex-col pt-10 px-6 md:px-10",
+  span : "text-sm text-gray-600 font-semibold",
+  cardStyle : "bg-white rounded-xl shadow-md p-6",
+  cardSpan : "text-blue-600 font-semibold",
+  invalidInput : "border-red-500 focus:ring-red-500",
+  validInput : "border-gray-300",
+  errorText : "text-red-500 text-sm"
+};
+
+function MovementForm() {
+  const movementsState = useSelector((state)=>state.movements.movements)
+  const [movements,setMovements] = useState([])
+  const [loading, setLoading] = useState(true);
+
+
+
+  //API GET
+  useEffect(() => {
+ 	const API_URL = 'http://localhost:4000/movements'; 
+ 	setLoading(true);
+
+ 	axios.get(API_URL)
+ 	.then(response => {
+
+ 	setMovements(response.data);
+ 	})
+
+ 	.catch(error => {
+ 	console.error("Erreur GET:", error);
+ 	})
+
+ 	.finally(() => {
+ 	setLoading(false);
+ 	});
+}, []);
+
+  //API POST
+ const handlePost = () => {
+ 	const API_URL = 'http://localhost:4000/movements';
+  const newMovement = {
+    id: movementsState.length + 1,
+    article: movementsInfo.article,
+    type: movementsInfo.type,
+    quantite: Number(movementsInfo.quantite),
+    commentaire: movementsInfo.commentaire,
+    date: movementsInfo.date
+    };
+	axios.post(API_URL, newMovement)
+
+ 	.then(response => {
+ 	console.log("Objet créé:", response.data);
+
+ 	})
+ 	.catch(error => {
+ 
+ 	console.error("Erreur POST:", error);
+    setMovementsInfos({
+      id: null,
+      article: "",
+      type: "",
+      quantite: 0,
+      commentaire: "",
+      date : ""
+    });
+ 	});
+ };
+
+
+  //ga3 larticle li kynin f articles jbnahom w 7tinahom f array rashom
+  const articles = useSelector((state)=>state.articles.articles)
+  const articleName = []
+  articles.forEach(a => {
+      if(!articleName.includes(a.name)){
+        articleName.push(a.name)
+      }
+  });
+
+  //form donnes 
+  const [movementsInfo, setMovementsInfos] = useState({
+    id: null,
+    article: "",
+    type: "",
+    quantite: 0,
+    commentaire: "",
+    date : ""
+
+  });
+
+  const HandleChange = (e) => {
+  setMovementsInfos({
+    ...movementsInfo,
+    [e.target.name]: e.target.value
+  });
+
+
+  }
+  
+  // nsifto lvalue li jbna mn form wnsiftohom l store
+  const dispatch = useDispatch()
+  const handleAddMovement = ()=>{
+          const newMovement = {
+          id: movementsState.length + 1,
+          article: movementsInfo.article,
+          type: movementsInfo.type,
+          quantite: Number(movementsInfo.quantite),
+          commentaire: movementsInfo.commentaire,
+          date: movementsInfo.date
+        };
+        dispatch(addMovement(newMovement));
+        console.log("Article ajouté au store Redux:", newMovement);
+        setMovementsInfos({
+          id: null,
+          article: "",
+          type: "",
+          quantite: 0,
+          commentaire: "",
+          date : ""
+        });
+  }
+
+  
+  const handleSubmit = (e)=>{
+    e.preventDefault();
+    handlePost()
+    handleAddMovement()
+
+  }
+
+  const navigate = useNavigate();
+  const handleNavigate = () => {
+    navigate(-1);
+  }
+
+
+ if (loading) return <p>Chargement des Movements...</p>;
+  return (
+    <div className={`${styles.mainDiv}`}>
+      <div className="max-w-8xl w-full mx-auto">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8 px-5">
+          <h1 className={`text-5xl font-bold text-center ${styles.red.textRed} tracking-tight`}>Ajouter un Movement</h1>
+  
+          <button onClick={handleNavigate} className={`flex justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
+          text-white rounded-xl shadow-md transition`}><span><FaList /></span>Tableau des Movements</button>
+        </div>
+
+        {/* Card */}
+        <div className={`${styles.cardStyle}`}>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Article */}
+            <div>
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Article</label>
+              <select value={movementsInfo.article} onChange={HandleChange} name='article' className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <option value={-1}>Choisir un article</option>
+                {
+                  articleName.map((a,i)=>(
+                    <option key={i} value={a}>{a}</option>
+
+                  ))
+                }
+              </select>
+            </div>
+
+            {/* Type */}
+            <div>
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Type de mouvement</label>
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2">
+                  <input value="Entrée" checked={movementsInfo.type=="Entrée"} onChange={HandleChange} type="radio" name="type" />
+                  <span className={`${styles.green.textGreen700}`}>Entrée</span>
+                </label>
+
+                <label className="flex items-center gap-2">
+                  <input value="Sortie" checked={movementsInfo.type=="Sortie"} onChange={HandleChange} type="radio" name="type" />
+                  <span className={`${styles.red.textRed}`}>Sortie</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Quantity */}
+            <div>
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Quantité</label>
+              <input value={movementsInfo.quantite}  onChange={HandleChange} name='quantite' type="number" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                placeholder="Entrer la quantité"/>
+            </div>
+
+            {/* Comment */}
+            <div>
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Commentaire</label>
+              <textarea value={movementsInfo.commentaire}  onChange={HandleChange} name='commentaire' rows="4" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"
+                placeholder="Commentaire (optionnel)..."></textarea>
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Date</label>
+              <input value={movementsInfo.date}  onChange={HandleChange} name='date' type="date" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"/>
+            </div>
+
+            {/* Submit Button */}
+            <button type="submit" className={`cursor-pointer w-full py-3 rounded-lg text-white font-semibold transition ${styles.red.bgRed} ${styles.red.bgRedHover}`}>
+              Enregistrer le mouvement
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default MovementForm
