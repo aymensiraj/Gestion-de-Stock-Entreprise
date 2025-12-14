@@ -1,10 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
 import { useSelector } from "react-redux";
-import { useState,useEffect } from "react";
 import axios from "axios";
-
 
 const styles = {
   gray: {
@@ -26,19 +24,17 @@ const styles = {
   },
   blue: { textBlue: "text-blue-600" },
   textYellow: "text-yellow-600",
-  mainDiv: "min-h-screen bg-gray-50 text-gray-800 flex flex-col pt-10 px-6 md:px-10",
+  mainDiv: "min-h-screen bg-gray-50 text-gray-800 flex flex-col pt-10 px-4 sm:px-6 md:px-10",
   span: "text-sm text-gray-600 font-semibold",
   cardStyle: "bg-white rounded-xl shadow-lg p-6 border border-gray-100",
   cardSpan: "text-blue-600 font-semibold",
-  th : "px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wide",
-  td : "px-6 py-4 text-gray-800 font-medium",
+  th : "px-4 sm:px-6 py-4 text-sm font-semibold text-gray-700 uppercase tracking-wide",
+  td : "px-4 sm:px-6 py-4 text-gray-800 font-medium",
 };
 
 function MovementsTable() {
-  //value mn store
-  const movementsState = useSelector((state)=>state.movements.movements)
+  const movementsState = useSelector((state)=>state.movements.movements);
 
-  //value mn API
   const [movements, setMovements] = useState([]); 
   const [loading, setLoading] = useState(true);
   
@@ -47,36 +43,33 @@ function MovementsTable() {
       
       axios.get(API_URL)
       .then(response => {
-        setLoading(true);
         setMovements(response.data);
       })
-  
       .catch(error => {
-      console.error("Erreur GET:", error);
+        console.error("Erreur GET:", error);
       })
-  
       .finally(() => {
-      setLoading(false);
+        setLoading(false);
       });
     }, []);
 
+  const entreeStyle = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium";
+  const sortieStyle = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium";
 
-  const entreeStyle = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium"
-  const sortieStyle = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium"
-  
-    const [filteredMovements, setFilteredMovements] = useState(movementsState);
-    const [search, setSearch] = useState({
-      article : "",
-      type: ''
-    });
-  
-    const HandleChange = (e) => {
-      setSearch(prev => ({
-        ...prev,
-        [e.target.name]: e.target.value
-      }));
-    }
-    useEffect(() => {
+  const [filteredMovements, setFilteredMovements] = useState(movementsState);
+  const [search, setSearch] = useState({
+    article : "",
+    type: ''
+  });
+
+  const HandleChange = (e) => {
+    setSearch(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  }
+
+  useEffect(() => {
     const filtered = movementsState.filter(movement => {
       return (
         movement.article.toLowerCase().includes(search.article.toLowerCase()) &&
@@ -86,70 +79,67 @@ function MovementsTable() {
     setFilteredMovements(filtered);
   }, [search, movementsState]);
 
- if (loading) return <p>Chargement des Movements...</p>;
+  if (loading) return <p>Chargement des Movements...</p>;
 
   return (
     <div className={styles.mainDiv}>
       {/* Title */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 px-2 md:px-5">
+        <h1 className={`text-3xl md:text-5xl font-bold text-center md:text-left ${styles.red.textRed} tracking-tight mb-4 md:mb-0`}>
+          Tableau des Movements
+        </h1>
 
-      <div className="flex justify-between items-center mb-8 px-5">
-        <h1 className={`text-5xl font-bold text-center ${styles.red.textRed} tracking-tight`}>Tableau des Movements</h1>
-
-        <Link to="/movements/add" className={`flex justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
-                    text-white rounded-xl shadow-md transition`}><span><IoMdAdd /></span>Ajouter un mouvement</Link>
+        <Link to="/movements/add" className={`flex justify-center md:justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
+                    text-white rounded-xl shadow-md transition`}>
+          <span><IoMdAdd /></span>Ajouter un mouvement
+        </Link>
       </div>
 
-      <div className="flex gap-3 mt-10 mb-10">
+      {/* Filters */}
+      <div className="flex flex-col md:flex-row gap-4 mt-10 mb-10">
         <div className="flex flex-col flex-1">
-              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Filter Par Nom</label>
-              <input type="text" value={search.article} name='article' onChange={HandleChange} className={`border-gray-300 w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-gray-300`}
-                placeholder="Filter Par Article..."/>
+          <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Filter Par Nom</label>
+          <input type="text" value={search.article} name='article' onChange={HandleChange} 
+            className="border-gray-300 w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-gray-300"
+            placeholder="Filter Par Article..." />
         </div>
         <div className="flex flex-col flex-1">
-              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Filter Par Type</label>
-              <input type="text" value={search.type} name='type' onChange={HandleChange} className={`border-gray-300 w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-gray-300`}
-                placeholder="Filter Par Type..."/>
+          <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Filter Par Type</label>
+          <input type="text" value={search.type} name='type' onChange={HandleChange} 
+            className="border-gray-300 w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-gray-300"
+            placeholder="Filter Par Type..." />
         </div>
       </div>
 
+      {/* Table */}
       <div className="overflow-x-auto bg-white shadow-xl rounded-xl border border-gray-100">
-        <table className="w-full text-left border-collapse">
-          {/* Head */}
+        <table className="w-full text-left border-collapse min-w-[600px] sm:min-w-full">
           <thead className="bg-gray-100 border-b border-gray-200">
             <tr>
-              <th className={`${styles.th}`}>Article</th>
-              <th className={`${styles.th}`}>Type</th>
-              <th className={`${styles.th}`}>Quantité</th>
-              <th className={`${styles.th}`}>Commentaire</th>
-              <th className={`${styles.th}`}>Date</th>
+              <th className={styles.th}>Article</th>
+              <th className={styles.th}>Type</th>
+              <th className={styles.th}>Quantité</th>
+              <th className={styles.th}>Commentaire</th>
+              <th className={styles.th}>Date</th>
             </tr>
           </thead>
-
-          {/* Body */}
           <tbody>
-            {
-
-            filteredMovements.map((movement,index)=>(
-
-            <tr key={index} className="hover:bg-gray-50 transition">
-              <td className={`${styles.td}`}>{movement.article}</td>
-              <td className="px-6 py-4">
-                <span className={movement.type =="Entrée"?entreeStyle:sortieStyle}>{movement.type}</span>
-              </td>
-              <td className={`${styles.td}`}>{movement.quantite}</td>
-              <td className="px-6 py-4 text-gray-600">{movement.commentaire}</td>
-              <td className="px-6 py-4 text-gray-500 text-sm">{movement.date}</td>
-            </tr>
-              ))
-            }
-            
-
+            {filteredMovements.map((movement,index)=>(
+              <tr key={index} className="hover:bg-gray-50 transition">
+                <td className={styles.td}>{movement.article}</td>
+                <td className="px-4 sm:px-6 py-4">
+                  <span className={movement.type =="Entrée"?entreeStyle:sortieStyle}>{movement.type}</span>
+                </td>
+                <td className={styles.td}>{movement.quantite}</td>
+                <td className="px-4 sm:px-6 py-4 text-gray-600">{movement.commentaire}</td>
+                <td className="px-4 sm:px-6 py-4 text-gray-500 text-sm">{movement.date}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     </div>
   );
 }
-
 
 export default MovementsTable;

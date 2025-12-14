@@ -242,11 +242,13 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
       <div className="max-w-8xl w-full mx-auto">
         
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 px-5">
-          <h1 className={`text-5xl font-bold text-center ${styles.red.textRed} tracking-tight`}>Ajouter un Article</h1>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 px-2 md:px-5">
+        <h1 className={`text-3xl md:text-5xl font-bold text-center md:text-left ${styles.red.textRed} tracking-tight mb-4 md:mb-0`}>
+          Tableau des Articles
+        </h1>
   
-          <button onClick={handleNavigate} className={`flex justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
-                      text-white rounded-xl shadow-md transition`}><span><FaList /></span>Tableau des Articles</button>
+          <button onClick={handleNavigate} className={`flex justify-center md:justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
+                    text-white rounded-xl shadow-md transition`}><span><FaList /></span>Tableau des Articles</button>
         </div>
 
         {/* Card */}
