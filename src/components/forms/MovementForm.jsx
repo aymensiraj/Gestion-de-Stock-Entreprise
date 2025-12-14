@@ -1,5 +1,4 @@
-import { React, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import {  useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { FaList } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
@@ -123,9 +122,25 @@ function MovementForm() {
     ...movementsInfo,
     [e.target.name]: e.target.value
   });
-
-
   }
+
+  const handlePut = (article, quantite, MovementType) => {
+	const id = article.id; 
+	const API_URL = `http://localhost:4000/articles/${id}`;
+ 
+	const updatedPost = {
+    ...article,
+    quantity: MovementType === "Entrée" ? article.quantity + quantite : article.quantity - quantite
+  };
+
+  console.log("Updated Post:", updatedPost);
+ 
+ 	axios.put(API_URL, updatedPost)
+
+ 	.then(response => {console.log("Objet mis à jour:", response.data);})
+
+ 	.catch(error => {console.error("Erreur PUT:", error);});
+ };
   
   // nsifto lvalue li jbna mn form wnsiftohom l store
   const [quantiteErrorV2,setQuantiteErrorV2] = useState(false)
@@ -140,14 +155,17 @@ function MovementForm() {
           date: movementsInfo.date
         };
         //bach mli tkon quantity dyl new movement kbr mn quantity l9dima maydirch sortie ga3 
-        const index = articles.findIndex(a => a.id === newMovement.id);
-        if(newMovement.quantite>articles[index].quantity && newMovement.type=="Sortie"){
+        const articleToUpdate = articles.find(a => a.name === newMovement.article);
+        if(newMovement.quantite>articleToUpdate.quantity && newMovement.type=="Sortie"){
           setQuantiteErrorV2(true)
           return
         }
+        
         dispatch(addMovement(newMovement));
         dispatch(updateQuantite(newMovement))
         console.log("Article ajouté au store Redux:", newMovement);
+        handlePut(articleToUpdate, newMovement.quantite, newMovement.type)
+        handlePost()
 
   }
 
@@ -208,7 +226,6 @@ function MovementForm() {
       console.log("Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.");
       return;
     } 
-    handlePost()
     handleAddMovement()
     setMovementsInfos({
       id: null,
@@ -223,6 +240,14 @@ function MovementForm() {
   const handleNavigate = () => {
     navigate(-1);
   }
+// hado dyl date bach yb9a m7dod ra fsimana li fiha 7na
+const today = new Date()
+const endOfWeek = new Date(today)
+endOfWeek.setDate(today.getDate() + 7)
+const minDate = today.toISOString().split("T")[0]
+const maxDate = endOfWeek.toISOString().split("T")[0]
+
+
 
 
  if (loading) return <p>Chargement des Movements...</p>;
@@ -296,9 +321,10 @@ function MovementForm() {
             </div>
 
             {/* Date */}
+            
             <div>
               <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Date</label>
-              <input value={movementsInfo.date}  onChange={HandleChange} name='date' type="date" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"/>
+              <input min={minDate} max={maxDate} value={movementsInfo.date}  onChange={HandleChange} name='date' type="date" className="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-600"/>
               {errors.dateError && (<p className={`${styles.errorText}`}>Entre la date</p>)}
             </div>
 

@@ -63,6 +63,28 @@ function MovementsTable() {
 
   const entreeStyle = "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium"
   const sortieStyle = "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-medium"
+  
+    const [filteredMovements, setFilteredMovements] = useState(movementsState);
+    const [search, setSearch] = useState({
+      article : "",
+      type: ''
+    });
+  
+    const HandleChange = (e) => {
+      setSearch(prev => ({
+        ...prev,
+        [e.target.name]: e.target.value
+      }));
+    }
+    useEffect(() => {
+    const filtered = movementsState.filter(movement => {
+      return (
+        movement.article.toLowerCase().includes(search.article.toLowerCase()) &&
+        movement.type.toLowerCase().includes(search.type.toLowerCase())
+      );
+    });
+    setFilteredMovements(filtered);
+  }, [search, movementsState]);
 
  if (loading) return <p>Chargement des Movements...</p>;
 
@@ -75,6 +97,19 @@ function MovementsTable() {
 
         <Link to="/movements/add" className={`flex justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
                     text-white rounded-xl shadow-md transition`}><span><IoMdAdd /></span>Ajouter un mouvement</Link>
+      </div>
+
+      <div className="flex gap-3 mt-10 mb-10">
+        <div className="flex flex-col flex-1">
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Filter Par Nom</label>
+              <input type="text" value={search.article} name='article' onChange={HandleChange} className={`border-gray-300 w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-gray-300`}
+                placeholder="Filter Par Article..."/>
+        </div>
+        <div className="flex flex-col flex-1">
+              <label className={`block mb-1 font-semibold ${styles.gray.textGray700}`}>Filter Par Type</label>
+              <input type="text" value={search.type} name='type' onChange={HandleChange} className={`border-gray-300 w-full p-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-gray-300`}
+                placeholder="Filter Par Type..."/>
+        </div>
       </div>
 
       <div className="overflow-x-auto bg-white shadow-xl rounded-xl border border-gray-100">
@@ -94,7 +129,7 @@ function MovementsTable() {
           <tbody>
             {
 
-            movementsState.map((movement,index)=>(
+            filteredMovements.map((movement,index)=>(
 
             <tr key={index} className="hover:bg-gray-50 transition">
               <td className={`${styles.td}`}>{movement.article}</td>
