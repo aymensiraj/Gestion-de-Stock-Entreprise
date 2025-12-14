@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom"
 import React from 'react'
 import { useSelector } from 'react-redux';
+<<<<<<< HEAD
 import MouvementsJourChart from "../components/chart";
+=======
+
+>>>>>>> 7e457a8485755ddeb9c3d705313f258dacd3a3b3
 const styles = {
   gray : {
     textGray800 : "text-gray-800",
@@ -108,7 +112,14 @@ const last3lowStockArticles = articlesState.filter(article => article.quantity <
          {/* Chart placeholder  */}
         <div className={`${styles.cardStyle} cursor-pointer`}>
             <h2 className={`text-2xl font-bold mb-3 ${styles.red.textRed}`}>Mouvements (7 derniers jours)</h2>
+<<<<<<< HEAD
             <MouvementsJourChart/>
+=======
+
+            <div className="h-56 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
+                Chart Placeholder
+            </div>
+>>>>>>> 7e457a8485755ddeb9c3d705313f258dacd3a3b3
         </div>
 
          {/* Top items  */}
