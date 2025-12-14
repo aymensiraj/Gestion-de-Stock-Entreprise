@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom"
 import React from 'react'
-import StatCard from "../components/cards/StatCard";
-import AlertCard from "../components/cards/AlertCard";
+import { useSelector } from 'react-redux';
 
 const styles = {
   gray : {
@@ -27,67 +26,88 @@ const styles = {
 };
 
 function Dashboard() {
+const articlesState = useSelector((state) => state.articles.articles);
+const movementsState = useSelector((state) => state.movements.movements);
+
+const totalQuantity = articlesState.reduce((total, article) => total + parseInt(article.quantity), 0);
+
+const lowStockArticles = articlesState.filter(article => article.quantity < article.seuil_min).length;
+const movementStateLength = movementsState.length;
+
+const last3lowStockArticles = articlesState.filter(article => article.quantity < article.seuil_min * 1.3).slice(0, 3);
+
+
+
  return (
     <div className={`${styles.mainDiv}`}>
 
     {/*  TOP CARDS  */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-        <StatCard />
-        <StatCard />
-        <StatCard />
         {/* Total Stock Value  */}
-        {/* <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100">
-            <p className={`${styles.gray.textGray500}`}>Total Stock Value</p>
-            <h2 className={`text-3xl font-bold mt-2 ${styles.blue.textBlue}`}>128,500 DH</h2>
-            <span className={`${styles.span}`}>+12% this month</span>
-        </div> */}
+        <div className="bg-white text-gray-800 flex flex-col px-4 py-6 rounded-xl shadow-md border border-gray-100">
+            <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 cursor-pointer">
+                <p className={`${styles.gray.textGray500}`}>Quantité Totale</p>
+                <h2 className={`text-3xl font-bold mt-2 ${styles.blue.textBlue}`}> {totalQuantity} Articles</h2>
+                <span className={`${styles.span}`}>+12 % ce mois-ci</span>
+            </div>
+        </div>
 
         {/*  Low Stock Alerts  */}
-        {/* <div className="bg-white p-6 rounded-xl shadow-md border border-red-100">
-            <p className={`${styles.gray.textGray500}`}>Low Stock Alerts</p>
-            <h2 className={`text-3xl font-bold mt-2 ${styles.blue.textBlue}`}>8 Items</h2>
-            <span className={`${styles.span}`}>Action Required</span>
-        </div> */}
+        <div className="bg-white text-gray-800 flex flex-col px-4 py-6 rounded-xl shadow-md border border-gray-100">
+                <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 cursor-pointer">
+                <p className={`${styles.gray.textGray500}`}>Alertes de stock faible</p>
+                <h2 className={`text-3xl font-bold mt-2 ${styles.blue.textBlue}`}> {lowStockArticles} </h2>
+                <span className={`${styles.span}`}>Action requise</span>
+            </div>
+        </div>
 
          {/* Monthly Movements  */}
-        {/* <div className="bg-white p-6 rounded-xl shadow-md border border-yellow-100">
-            <p className={`${styles.gray.textGray500}`}>Movements This Month</p>
-            <h2 className={`text-3xl font-bold mt-2 ${styles.blue.textBlue}`}>245</h2>
-            <span className={`${styles.span}`}>Entries & Exits</span>
-        </div> */}
+        <div className="bg-white text-gray-800 flex flex-col px-4 py-6 rounded-xl shadow-md border border-gray-100">
+            <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 cursor-pointer">
+                <p className={`${styles.gray.textGray500}`}>Mouvements ce mois-ci</p>
+                <h2 className={`text-3xl font-bold mt-2 ${styles.blue.textBlue}`}> {movementStateLength} </h2>
+                <span className={`${styles.span}`}>Entrées et sorties</span>
+            </div>
+        </div>
 
     </div>
 
      {/* ALERTS LIST  */}
-        <AlertCard />
-    {/* <div className="bg-white rounded-xl shadow-md p-6 mb-10">
-        <h2 className={`text-2xl font-bold mb-4 ${styles.red.textRed}`}>Stock Alerts</h2>
+    <div className="bg-white text-gray-800 flex flex-col px-4 py-6 rounded-xl shadow-md border border-gray-100 mb-10">
+        <div className="bg-white p-6 rounded-xl shadow-md border border-blue-100 cursor-pointer">
+            <h2 className={`text-2xl font-bold mb-4 ${styles.red.textRed}`}>Stock Alerts</h2>
 
-        <div className="space-y-3">
-        <div className="flex justify-between bg-red-50 border border-red-200 p-4 rounded-lg">
-            <span className={`font-medium ${styles.gray.textGray800}`}>Steel Bolts (REF-001)</span>
-            <span className={`${styles.red.spanRed} font-semibold`}>Only 3 left</span>
+            <div className="space-y-3">
+                {last3lowStockArticles.length === 0 ? (
+                <p className={`${styles.gray.textGray700}`}>Aucune alerte de stock faible.</p>
+                ) : (
+                last3lowStockArticles.map((article) =>
+                    article.quantity < article.seuil_min ? (
+                    <div key={article.id} className="flex justify-between bg-red-50 border border-red-200 p-4 rounded-lg">
+                        <span className={`font-medium ${styles.gray.textGray800}`}>
+                        {article.name} (REF-{article.reference})
+                        </span>
+                        <span className={`${styles.red.spanRed} font-semibold`}>Il n'en reste que {article.quantity} </span>
+                    </div>
+                    ) : (
+                    <div key={article.id} className="flex justify-between bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
+                        <span className={`font-medium ${styles.gray.textGray800}`}> {article.name} (REF-{article.reference}) </span>
+                        <span className={`${styles.textYellow} font-semibold`}> Faible: {article.quantity} unités </span>
+                    </div>
+                    )
+                )
+                )}
+            </div>
         </div>
-
-        <div className="flex justify-between bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-            <span className={`font-medium ${styles.gray.textGray800}`}>Aluminium Plate (REF-023)</span>
-            <span className={`${styles.textYellow} font-semibold`}>Low: 12 units</span>
-        </div>
-
-        <div className="flex justify-between bg-red-50 border border-red-200 p-4 rounded-lg">
-            <span className={`font-medium ${styles.gray.textGray800}`}>Nuts Set (REF-017)</span>
-            <span className={`${styles.red.spanRed} font-semibold`}>Only 5 left</span>
-        </div>
-        </div>
-    </div> */}
+    </div>
 
      {/* CHART + MOST USED  */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
          {/* Chart placeholder  */}
         <div className={`${styles.cardStyle} cursor-pointer`}>
-            <h2 className={`text-2xl font-bold mb-3 ${styles.red.textRed}`}>Movements (Last 7 Days)</h2>
+            <h2 className={`text-2xl font-bold mb-3 ${styles.red.textRed}`}>Mouvements (7 derniers jours)</h2>
 
             <div className="h-56 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
                 Chart Placeholder
@@ -96,35 +116,9 @@ function Dashboard() {
 
          {/* Top items  */}
         <div className={`${styles.cardStyle} cursor-pointer`}>
-            <h2 className={`text-2xl font-bold mb-3 ${styles.red.textRed}`}>
-            Top 5 Consumed Items
-            </h2>
+            <h2 className={`text-2xl font-bold mb-3 ${styles.red.textRed}`}>Les 5 produits les plus consommés</h2>
 
             <ul className="space-y-4">
-                <li className="flex justify-between">
-                    <span className={`font-medium ${styles.gray.textGray800}`}>Steel Bolts</span>
-                    <span className={`${styles.cardSpan}`}>350 movements</span>
-                </li>
-
-                <li className="flex justify-between">
-                    <span className={`font-medium ${styles.gray.textGray800}`}>Metal Sheets</span>
-                    <span className={`${styles.cardSpan}`}>280 movements</span>
-                </li>
-
-                <li className="flex justify-between">
-                    <span className={`font-medium ${styles.gray.textGray800}`}>Aluminium Plates</span>
-                    <span className={`${styles.cardSpan}`}>210 movements</span>
-                </li>
-
-                <li className="flex justify-between">
-                    <span className={`font-medium ${styles.gray.textGray800}`}>Nuts Set</span>
-                    <span className={`${styles.cardSpan}`}>190 movements</span>
-                </li>
-
-                <li className="flex justify-between">
-                    <span className={`font-medium ${styles.gray.textGray800}`}>Copper Tubes</span>
-                    <span className={`${styles.cardSpan}`}>140 movements</span>
-                </li>
             </ul>
         </div>
 

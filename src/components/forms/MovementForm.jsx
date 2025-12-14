@@ -123,9 +123,25 @@ function MovementForm() {
     ...movementsInfo,
     [e.target.name]: e.target.value
   });
-
-
   }
+
+  const handlePut = (article, quantite, MovementType) => {
+	const id = article.id; 
+	const API_URL = `http://localhost:4000/articles/${id}`;
+ 
+	const updatedPost = {
+    ...article,
+    quantity: MovementType === "Entrée" ? article.quantity + quantite : article.quantity - quantite
+  };
+
+  console.log("Updated Post:", updatedPost);
+ 
+ 	axios.put(API_URL, updatedPost)
+
+ 	.then(response => {console.log("Objet mis à jour:", response.data);})
+
+ 	.catch(error => {console.error("Erreur PUT:", error);});
+ };
   
   // nsifto lvalue li jbna mn form wnsiftohom l store
   const [quantiteErrorV2,setQuantiteErrorV2] = useState(false)
@@ -140,14 +156,17 @@ function MovementForm() {
           date: movementsInfo.date
         };
         //bach mli tkon quantity dyl new movement kbr mn quantity l9dima maydirch sortie ga3 
-        const index = articles.findIndex(a => a.id === newMovement.id);
-        if(newMovement.quantite>articles[index].quantity && newMovement.type=="Sortie"){
+        const articleToUpdate = articles.find(a => a.name === newMovement.article);
+        if(newMovement.quantite>articleToUpdate.quantity && newMovement.type=="Sortie"){
           setQuantiteErrorV2(true)
           return
         }
+        
         dispatch(addMovement(newMovement));
         dispatch(updateQuantite(newMovement))
         console.log("Article ajouté au store Redux:", newMovement);
+        handlePut(articleToUpdate, newMovement.quantite, newMovement.type)
+        handlePost()
 
   }
 
@@ -208,7 +227,6 @@ function MovementForm() {
       console.log("Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.");
       return;
     } 
-    handlePost()
     handleAddMovement()
     setMovementsInfos({
       id: null,
