@@ -1,4 +1,4 @@
-import { React, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { IoMdAdd, IoMdArrowForward } from "react-icons/io";
 import { useSelector } from 'react-redux';
@@ -32,56 +32,70 @@ const styles = {
   td: "px-4 sm:px-6 py-4 text-gray-800 font-medium text-center",
 };
 
-function ArticlesTable() {
-  const articlesState = useSelector((state) => state.articles.articles);
-  const [articles, setArticles] = useState([]);
-  const [loading, setLoading] = useState(true);
+function ArticlesTable() {// Récupérer les articles depuis le store Redux
+const articlesState = useSelector((state) => state.articles.articles);
 
-  useEffect(() => {
-    const API_URL = 'http://localhost:4000/articles';
-    setLoading(true);
+// State local pour stocker les articles récupérés depuis l'API
+const [articles, setArticles] = useState([]);
 
-    axios.get(API_URL)
-      .then(response => {
-        setArticles(response.data);
-      })
-      .catch(error => {
-        console.error("Erreur GET:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
+// State pour gérer le chargement des données
+const [loading, setLoading] = useState(true);
 
-  const [filteredArticles, setFilteredArticles] = useState(articlesState);
-  const [search, setSearch] = useState({
-    filter: "",
-    nom: '',
-    category: '',
-    quantity: '',
-    unite: ''
+// useEffect pour récupérer les articles depuis l'API au chargement du composant
+useEffect(() => {
+  const API_URL = 'http://localhost:4000/articles';
+  setLoading(true); // Activer le loader pendant la récupération
+
+  axios.get(API_URL)
+    .then(response => {
+      // Stocker les données récupérées dans le state local
+      setArticles(response.data);
+    })
+    .catch(error => {
+      console.error("Erreur GET:", error); // Afficher les erreurs éventuelles
+    })
+    .finally(() => {
+      setLoading(false); // Désactiver le loader une fois terminé
+    });
+}, []);
+
+// State pour stocker les articles filtrés selon les critères de recherche
+const [filteredArticles, setFilteredArticles] = useState(articlesState);
+
+// State pour gérer les valeurs de recherche / filtres
+const [search, setSearch] = useState({
+  filter: "", 
+  nom: '',      
+  category: '', 
+  quantity: '', 
+  unite: ''    
+});
+
+// Fonction pour gérer les changements dans les champs de recherche
+const HandleChange = (e) => {
+  setSearch(prev => ({
+    ...prev,
+    [e.target.name]: e.target.value, // Mettre à jour le champ correspondant
+  }));
+}
+
+// useEffect pour filtrer les articles chaque fois que search ou articlesState change
+useEffect(() => {
+  const filtered = articlesState.filter(article => {
+    return (
+      article.name.toLowerCase().includes(search.filter.toLowerCase()) && // Filtre par nom
+      article.category.toLowerCase().includes(search.category.toLowerCase()) && // Filtre par catégorie
+      article.unit.toLowerCase().includes(search.unite.toLowerCase()) && // Filtre par unité
+      article.quantity.toString().includes(search.quantity) // Filtre par quantité
+    );
   });
 
-  const HandleChange = (e) => {
-    setSearch(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  }
+  // Mettre à jour le state avec les articles filtrés
+  setFilteredArticles(filtered);
+}, [search, articlesState]);
 
-  useEffect(() => {
-    const filtered = articlesState.filter(article => {
-      return (
-        article.name.toLowerCase().includes(search.filter.toLowerCase()) &&
-        article.category.toLowerCase().includes(search.category.toLowerCase()) &&
-        article.unit.toLowerCase().includes(search.unite.toLowerCase()) &&
-        article.quantity.toString().includes(search.quantity)
-      );
-    });
-    setFilteredArticles(filtered);
-  }, [search, articlesState]);
-
-  if (loading) return <p>Chargement des Articles...</p>;
+// Afficher un message de chargement si les articles sont en cours de récupération
+if (loading) return <p>Chargement des Articles...</p>;
 
   return (
     <div className={styles.mainDiv}>

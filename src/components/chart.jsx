@@ -4,40 +4,49 @@ import { useSelector } from "react-redux";
 
 
 const MouvementsJourChart = () => {
+  // Liste des jours de la semaine
   const dayList = ["lundi", "mardi", "mercredi", "jeudi", "vendredi","samedi","dimanche"]
 
+  // Fonction pour obtenir le nom du jour depuis une date
   const getDayName = (dateStr) => {
-    const day = new Date(dateStr).toLocaleDateString("fr-FR", { weekday: "long" }) //kijib kola day mn date li kyna f form wyrodo str b fr wdik "long" ra bach yjib smyat nhar kamla
-    return day.toLowerCase().trim() // yrodo lower bach n9dro n9arnoh m3a array ta3 dayList
+    const day = new Date(dateStr).toLocaleDateString("fr-FR", { weekday: "long" }) 
+    return day.toLowerCase().trim() // Retourne en minuscule et sans espaces
   }
 
+  // Hook personnalisé pour préparer les données du chart
   const useMovementChartData = () => {
-    const movements = useSelector(state => state.movements.movements)
-    const dataObject = {} // hada object li fih days w entrees w sorties li jayin
+    const movements = useSelector(state => state.movements.movements) // Récupérer les movements depuis Redux
+    const dataObject = {} // Objet temporaire pour compter Entrées/Sorties par jour
 
+    // Boucle sur chaque movement
     movements.forEach(m => {
-    const day = getDayName(m.date)
+      const day = getDayName(m.date)
+      
+      // Initialiser le jour dans l'objet si inexistant
       if (!dataObject[day]) {
           dataObject[day] = {
-            day: day.charAt(0).toUpperCase() + day.slice(1),  
+            day: day.charAt(0).toUpperCase() + day.slice(1),  // Capitaliser la première lettre
             Entrees: 0,
             Sorties: 0
         }
       }
-      const type = m.type.toLowerCase().trim() 
 
+      const type = m.type.toLowerCase().trim() // Normaliser le type
+
+      // Incrémenter le compteur selon le type
       if (type === "entrée") dataObject[day].Entrees += 1
       if (type === "sortie") dataObject[day].Sorties += 1
     })
 
-    // drt had condition bach chart mayb9ach 5awi bach tala kan day mafih ta entrees wla sorties yban day fchart wyban entree wsorties 0
+    // Retourner un tableau complet pour chaque jour, même si 0 mouvement
     return dayList.map(day => 
       dataObject[day] || { day: day.charAt(0).toUpperCase() + day.slice(1), Entrees: 0, Sorties: 0 }
     )
+  }
 
-}
+  // Récupérer les données prêtes pour le chart
+  const data = useMovementChartData()
 
-const data = useMovementChartData()
 
 
   return (
@@ -66,7 +75,7 @@ const data = useMovementChartData()
           />
 
           
-          <Tooltip // hada ra bach la drti hover fchi day y3tk detail dylo 
+          <Tooltip 
             contentStyle={{
               backgroundColor: "#111827",
               border: "none",
@@ -77,7 +86,7 @@ const data = useMovementChartData()
           />
 
           
-          <Legend // dak lkey bach tfhm kola lon dylch 
+          <Legend 
             verticalAlign="top"
             align="right"
             iconType="circle"
@@ -85,7 +94,7 @@ const data = useMovementChartData()
           />
 
           
-          <Line // hada dyl entrees 
+          <Line 
             type="monotone"
             dataKey="Entrees"
             
@@ -94,7 +103,7 @@ const data = useMovementChartData()
             dot={{ r: 3 }}
             activeDot={{ r: 6 }}
           />
-          <Line // hada dyl sorties
+          <Line 
             type="monotone"
             dataKey="Sorties"
             
@@ -109,6 +118,5 @@ const data = useMovementChartData()
     
   )
 }
-// ra la mbgitich tfhm
-// hdchi sahl
+
 export default MouvementsJourChart;

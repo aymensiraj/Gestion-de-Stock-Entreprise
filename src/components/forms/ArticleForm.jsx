@@ -1,5 +1,4 @@
-import { React, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import { FaList } from "react-icons/fa6";
 import { useDispatch, useSelector } from 'react-redux';
@@ -39,28 +38,31 @@ const styles = {
 
 function ArticleForm() {
 
+// State pour stocker les articles récupérés depuis l'API
 const [articles, setArticles] = useState([]);
+
+// State pour gérer le chargement des données
 const [loading, setLoading] = useState(true);
 
+// useEffect pour récupérer les articles au chargement du composant
 useEffect(() => {
- 	const API_URL = 'http://localhost:4000/articles'; 
- 	setLoading(true);
+  const API_URL = 'http://localhost:4000/articles'; 
+  setLoading(true); // Activer le loader pendant la récupération
 
- 	axios.get(API_URL)
- 	.then(response => {
-
- 	setArticles(response.data);
- 	})
-
- 	.catch(error => {
- 	console.error("Erreur GET:", error);
- 	})
-
- 	.finally(() => {
- 	setLoading(false);
- 	});
+  axios.get(API_URL)
+    .then(response => {
+      // Stocker les données récupérées dans le state
+      setArticles(response.data);
+    })
+    .catch(error => {
+      console.error("Erreur GET:", error); // Afficher les erreurs éventuelles
+    })
+    .finally(() => {
+      setLoading(false); // Désactiver le loader une fois terminé
+    });
 }, []);
 
+// State pour gérer les informations de l'article en cours de création
 const [articleInfos, setArticleInfos] = useState({
   id: null,
   name: "",
@@ -71,11 +73,14 @@ const [articleInfos, setArticleInfos] = useState({
   seuil_min: 0,
   fournisseur: "",
 });
+
+// Message pour indiquer le statut de la requête POST
 const [postMessage, setPostMessage] = useState("Cliquez pour créer un article.");
- 
- const handlePost = () => {
- 	const API_URL = 'http://localhost:4000/articles';
- 	const newArticle = {
+
+// Fonction pour envoyer un nouvel article à l'API
+const handlePost = () => {
+  const API_URL = 'http://localhost:4000/articles';
+  const newArticle = {
     id: articles.length + 1,
     name: articleInfos.name,
     reference: articleInfos.reference,
@@ -84,36 +89,87 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
     unit: articleInfos.unit,
     seuil_min: Number(articleInfos.seuil_min),
     fournisseur: articleInfos.fournisseur,
- 	};
-	setPostMessage("Envoi en cours...");
-	axios.post(API_URL, newArticle)
+  };
+  setPostMessage("Envoi en cours..."); // Message pendant l'envoi
 
- 	.then(response => {
- 	console.log("Objet créé:", response.data);
-
- 	})
- 	.catch(error => {
- 
- 	console.error("Erreur POST:", error);
-    setArticleInfos({
-      id: null,
-      name: "",
-      reference: "",
-      category: "",
-      quantity: 0,
-      unit: "",
-      seuil_min: 0,
-      fournisseur: "",
+  axios.post(API_URL, newArticle)
+    .then(response => {
+      console.log("Objet créé:", response.data); // Afficher la réponse de l'API
+    })
+    .catch(error => {
+      console.error("Erreur POST:", error); // Afficher les erreurs éventuelles
+      // Réinitialiser le formulaire si erreur
+      setArticleInfos({
+        id: null,
+        name: "",
+        reference: "",
+        category: "",
+        quantity: 0,
+        unit: "",
+        seuil_min: 0,
+        fournisseur: "",
+      });
     });
- 	});
- };
+};
 
-  const articlesState = useSelector((data) => data.articles.articles);
-  const fournisseurs = useSelector((data) => data.articles.fournisseurs);
-  const categories = useSelector((data) => data.articles.categories);
-  const unites = useSelector((data) => data.articles.unites);
-  const dispatch = useDispatch();
-  const [errors, setErrors] = useState({
+// Récupération des données depuis le store Redux
+const articlesState = useSelector((data) => data.articles.articles);
+const fournisseurs = useSelector((data) => data.articles.fournisseurs);
+const categories = useSelector((data) => data.articles.categories);
+const unites = useSelector((data) => data.articles.unites);
+const dispatch = useDispatch();
+
+// State pour gérer les erreurs de formulaire
+const [errors, setErrors] = useState({
+  nameError: false,
+  referenceError: false,
+  categoryError: false,
+  quantityError: false,
+  unitError: false,
+  seuil_minError: false,
+  fournisseurError: false,
+});
+
+// Fonction pour ajouter un article au store Redux
+const handleAddArticle = () => {
+  const newArticle = {
+    id: articlesState.length + 1,
+    name: articleInfos.name,
+    reference: articleInfos.reference,
+    category: articleInfos.category,
+    quantity: Number(articleInfos.quantity),
+    unit: articleInfos.unit,
+    seuil_min: Number(articleInfos.seuil_min),
+    fournisseur: articleInfos.fournisseur,
+  };
+  dispatch(addArticle(newArticle)); // Ajouter au store Redux
+  console.log("Article ajouté au store Redux:", newArticle);
+
+  // Réinitialiser le formulaire
+  setArticleInfos({
+    id: null,
+    name: "",
+    reference: "",
+    category: "",
+    quantity: 0,
+    unit: "",
+    seuil_min: 0,
+    fournisseur: "",
+  });
+}
+
+// Fonction pour gérer les changements dans le formulaire
+const HandleChange = (e) => {
+  setArticleInfos({
+    ...articleInfos,
+    [e.target.name]: e.target.value, // Mettre à jour la valeur correspondante
+  });
+}
+
+// Fonction pour valider les erreurs du formulaire
+const handleErrors = () => {
+  // Réinitialiser les erreurs
+  setErrors({
     nameError: false,
     referenceError: false,
     categoryError: false,
@@ -121,121 +177,79 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
     unitError: false,
     seuil_minError: false,
     fournisseurError: false,
-  });
+  })
 
-  const handleAddArticle = () => {
+  let hasError = false;
 
-    const newArticle = {
-      id: articlesState.length + 1,
-      name: articleInfos.name,
-      reference: articleInfos.reference,
-      category: articleInfos.category,
-      quantity: Number(articleInfos.quantity),
-      unit: articleInfos.unit,
-      seuil_min: Number(articleInfos.seuil_min),
-      fournisseur: articleInfos.fournisseur,
-    };
-    dispatch(addArticle(newArticle));
-    console.log("Article ajouté au store Redux:", newArticle);
-    setArticleInfos({
-      id: null,
-      name: "",
-      reference: "",
-      category: "",
-      quantity: 0,
-      unit: "",
-      seuil_min: 0,
-      fournisseur: "",
-    });
+  // Vérifications pour chaque champ
+  if (!articleInfos.name.trim() || articleInfos.name.length < 2) {
+    setErrors((prevErrors) => ({ ...prevErrors, nameError: true }));
+    hasError = true;
+  }
+  if (!articleInfos.reference.trim()) {
+    setErrors((prevErrors) => ({ ...prevErrors, referenceError: true }));
+    hasError = true;
+  }
+  if (!articleInfos.category.trim()) {
+    setErrors((prevErrors) => ({ ...prevErrors, categoryError: true }));
+    hasError = true;
+  }
+  if (articleInfos.quantity <= 0) {
+    setErrors((prevErrors) => ({ ...prevErrors, quantityError: true }));
+    hasError = true;
+  }
+  if (!articleInfos.unit.trim()) {
+    setErrors((prevErrors) => ({ ...prevErrors, unitError: true }));
+    hasError = true;
+  }
+  if (Number(articleInfos.seuil_min) <= 0 || Number(articleInfos.seuil_min) > Number(articleInfos.quantity)) {
+    setErrors((prevErrors) => ({ ...prevErrors, seuil_minError: true }));
+    hasError = true;
+  }
+  if (!articleInfos.fournisseur.trim()) {
+    setErrors((prevErrors) => ({ ...prevErrors, fournisseurError: true }));
+    hasError = true;
   }
 
-  const HandleChange = (e) => {
-    setArticleInfos({
-      ...articleInfos,
-      [e.target.name]: e.target.value,
-    });
-  }
+  return hasError; // Retourne true si erreurs
+}
 
-  const handleErrors = () => {
+// Fonction pour gérer la soumission du formulaire
+const handleSubmit = (e) => {
+  e.preventDefault();
 
-    setErrors({
-      nameError: false,
-      referenceError: false,
-      categoryError: false,
-      quantityError: false,
-      unitError: false,
-      seuil_minError: false,
-      fournisseurError: false,
-    })
-
-    let hasError = false;
-
-    if (!articleInfos.name.trim() || articleInfos.name.length < 2) {
-      setErrors((prevErrors) => ({ ...prevErrors, nameError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.reference.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, referenceError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.category.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, categoryError: true }));
-      hasError = true;
-    }
-    if (articleInfos.quantity <= 0) {
-      setErrors((prevErrors) => ({ ...prevErrors, quantityError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.unit.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, unitError: true }));
-      hasError = true;
-    }
-    if (Number(articleInfos.seuil_min) <= 0 || Number(articleInfos.seuil_min) > Number(articleInfos.quantity)) {
-      setErrors((prevErrors) => ({ ...prevErrors, seuil_minError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.fournisseur.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, fournisseurError: true }));
-      hasError = true;
-    }
-
-    if (hasError) return true;
-    return false;
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const hasErrors = handleErrors();
-    if (hasErrors) {
-      console.log("Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.");
-      return;
-    } 
-    
-    handlePost();
-    handleAddArticle();
-  }
-
-  const navigate = useNavigate();
-  const handleNavigate = () => {
-    navigate(-1);
-  }
-
-  const handleReset = () => {
-    setArticleInfos({
-      id: null,
-      name: "",
-      reference: "",
-      category: "",
-      quantity: 0,
-      unit: "",
-      seuil_min: 0,
-      fournisseur: "",
-    });
-  }
-
+  const hasErrors = handleErrors();
+  if (hasErrors) {
+    console.log("Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.");
+    return; // Ne pas continuer si erreurs
+  } 
   
- if (loading) return <p>Chargement des Articles...</p>;
+  handlePost(); // Envoyer à l'API
+  handleAddArticle(); // Ajouter au store Redux
+}
+
+// Navigation arrière
+const navigate = useNavigate();
+const handleNavigate = () => {
+  navigate(-1); // Retour à la page précédente
+}
+
+// Réinitialiser le formulaire
+const handleReset = () => {
+  setArticleInfos({
+    id: null,
+    name: "",
+    reference: "",
+    category: "",
+    quantity: 0,
+    unit: "",
+    seuil_min: 0,
+    fournisseur: "",
+  });
+}
+
+// Affichage du loader si les articles sont en cours de chargement
+if (loading) return <p>Chargement des Articles...</p>;
 
   return (
     <div className={`${styles.mainDiv}`}>
@@ -251,10 +265,8 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
                     text-white rounded-xl shadow-md transition`}><span><FaList /></span>Tableau des Articles</button>
         </div>
 
-        {/* Card */}
         <div className={`${styles.cardStyle}`}>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
 
             {/* Nom */}
@@ -326,12 +338,9 @@ const [postMessage, setPostMessage] = useState("Cliquez pour créer un article."
             </div>
 
             <div className='flex gap-3'>
-              {/* Submit Button */}
               <button type="submit" className={`cursor-pointer w-full py-3 rounded-lg text-white font-semibold transition ${styles.green.bgGreen600} ${styles.green.bgGreenHover}`}>
                 Enregistrer l'article
               </button>
-
-              {/* Reset Button */}
               <button type="reset" onClick={handleReset} className={`cursor-pointer w-full py-3 rounded-lg text-white font-semibold transition ${styles.red.bgRed} ${styles.red.bgRedHover}`}>
                 Reset
               </button>

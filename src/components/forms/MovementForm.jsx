@@ -39,74 +39,70 @@ const styles = {
 };
 
 function MovementForm() {
-  const movementsState = useSelector((state)=>state.movements.movements)
-  const [movements,setMovements] = useState([])
+  // Récupération des movements depuis le store Redux
+  const movementsState = useSelector((state)=>state.movements.movements);
+
+  // State local pour stocker les movements de l'API
+  const [movements,setMovements] = useState([]);
+
+  // State pour le chargement
   const [loading, setLoading] = useState(true);
 
-
-
-  //API GET
+  // Récupération des movements depuis l'API
   useEffect(() => {
- 	const API_URL = 'http://localhost:4000/movements'; 
- 	setLoading(true);
+    const API_URL = 'http://localhost:4000/movements'; 
+    setLoading(true);
 
- 	axios.get(API_URL)
- 	.then(response => {
+    axios.get(API_URL)
+      .then(response => {
+        setMovements(response.data);
+      })
+      .catch(error => {
+        console.error("Erreur GET:", error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
 
- 	setMovements(response.data);
- 	})
-
- 	.catch(error => {
- 	console.error("Erreur GET:", error);
- 	})
-
- 	.finally(() => {
- 	setLoading(false);
- 	});
-}, []);
-
-  //API POST
- const handlePost = () => {
- 	const API_URL = 'http://localhost:4000/movements';
-  const newMovement = {
-    id: movementsState.length + 1,
-    article: movementsInfo.article,
-    type: movementsInfo.type,
-    quantite: Number(movementsInfo.quantite),
-    commentaire: movementsInfo.commentaire,
-    date: movementsInfo.date
+  // Fonction pour ajouter un movement à l'API
+  const handlePost = () => {
+    const API_URL = 'http://localhost:4000/movements';
+    const newMovement = {
+      id: movementsState.length + 1,
+      article: movementsInfo.article,
+      type: movementsInfo.type,
+      quantite: Number(movementsInfo.quantite),
+      commentaire: movementsInfo.commentaire,
+      date: movementsInfo.date
     };
-	axios.post(API_URL, newMovement)
+    axios.post(API_URL, newMovement)
+      .then(response => {
+        console.log("Objet créé:", response.data);
+      })
+      .catch(error => {
+        console.error("Erreur POST:", error);
+        setMovementsInfos({
+          id: null,
+          article: "",
+          type: "",
+          quantite: 0,
+          commentaire: "",
+          date : ""
+        });
+      });
+  };
 
- 	.then(response => {
- 	console.log("Objet créé:", response.data);
-
- 	})
- 	.catch(error => {
- 
- 	console.error("Erreur POST:", error);
-    setMovementsInfos({
-      id: null,
-      article: "",
-      type: "",
-      quantite: 0,
-      commentaire: "",
-      date : ""
-    });
- 	});
- };
-
-
-  //ga3 larticle li kynin f articles jbnahom w 7tinahom f array rashom
-  const articles = useSelector((state)=>state.articles.articles)
-  const articleName = []
+  // Liste unique des noms d'articles pour le select
+  const articles = useSelector((state)=>state.articles.articles);
+  const articleName = [];
   articles.forEach(a => {
       if(!articleName.includes(a.name)){
-        articleName.push(a.name)
+        articleName.push(a.name);
       }
   });
 
-  //form donnes 
+  // State pour gérer les infos du formulaire
   const [movementsInfo, setMovementsInfos] = useState({
     id: null,
     article: "",
@@ -114,75 +110,72 @@ function MovementForm() {
     quantite: 0,
     commentaire: "",
     date : ""
-
   });
 
+  // Gestion des changements dans le formulaire
   const HandleChange = (e) => {
-  setMovementsInfos({
-    ...movementsInfo,
-    [e.target.name]: e.target.value
-  });
+    setMovementsInfos({
+      ...movementsInfo,
+      [e.target.name]: e.target.value
+    });
   }
 
+  // Fonction pour mettre à jour la quantité d'un article dans l'API
   const handlePut = (article, quantite, MovementType) => {
-	const id = article.id; 
-	const API_URL = `http://localhost:4000/articles/${id}`;
- 
-	const updatedPost = {
-    ...article,
-    quantity: MovementType === "Entrée" ? article.quantity + quantite : article.quantity - quantite
+    const id = article.id; 
+    const API_URL = `http://localhost:4000/articles/${id}`;
+    const updatedPost = {
+      ...article,
+      quantity: MovementType === "Entrée" ? article.quantity + quantite : article.quantity - quantite
+    };
+    console.log("Updated Post:", updatedPost);
+    axios.put(API_URL, updatedPost)
+      .then(response => {console.log("Objet mis à jour:", response.data);})
+      .catch(error => {console.error("Erreur PUT:", error);});
   };
 
-  console.log("Updated Post:", updatedPost);
- 
- 	axios.put(API_URL, updatedPost)
+  // State pour erreur de quantité
+  const [quantiteErrorV2,setQuantiteErrorV2] = useState(false);
 
- 	.then(response => {console.log("Objet mis à jour:", response.data);})
+  // Dispatch Redux
+  const dispatch = useDispatch();
 
- 	.catch(error => {console.error("Erreur PUT:", error);});
- };
-  
-  // nsifto lvalue li jbna mn form wnsiftohom l store
-  const [quantiteErrorV2,setQuantiteErrorV2] = useState(false)
-  const dispatch = useDispatch()
+  // Fonction pour ajouter un movement au store et à l'API
   const handleAddMovement = ()=>{
-          const newMovement = {
-          id: movementsState.length + 1,
-          article: movementsInfo.article,
-          type: movementsInfo.type,
-          quantite: Number(movementsInfo.quantite),
-          commentaire: movementsInfo.commentaire,
-          date: movementsInfo.date
-        };
-        //bach mli tkon quantity dyl new movement kbr mn quantity l9dima maydirch sortie ga3 
-        const articleToUpdate = articles.find(a => a.name === newMovement.article);
-        if(newMovement.quantite>articleToUpdate.quantity && newMovement.type=="Sortie"){
-          setQuantiteErrorV2(true)
-          return
-        }
-        
-        dispatch(addMovement(newMovement));
-        dispatch(updateQuantite(newMovement))
-        console.log("Article ajouté au store Redux:", newMovement);
-        handlePut(articleToUpdate, newMovement.quantite, newMovement.type)
-        handlePost()
+    const newMovement = {
+      id: movementsState.length + 1,
+      article: movementsInfo.article,
+      type: movementsInfo.type,
+      quantite: Number(movementsInfo.quantite),
+      commentaire: movementsInfo.commentaire,
+      date: movementsInfo.date
+    };
+    const articleToUpdate = articles.find(a => a.name === newMovement.article);
 
+    if(newMovement.quantite > articleToUpdate.quantity && newMovement.type=="Sortie"){
+      setQuantiteErrorV2(true);
+      return;
+    }
+
+    dispatch(addMovement(newMovement));
+    dispatch(updateQuantite(newMovement));
+    console.log("Article ajouté au store Redux:", newMovement);
+
+    handlePut(articleToUpdate, newMovement.quantite, newMovement.type);
+    handlePost();
   }
 
-  
-
-
-  const [errors,setErrors] = useState(
-  {
+  // State pour erreurs de formulaire
+  const [errors,setErrors] = useState({
       articleError: false,
       typeError: false,
       quantiteError: false,
       commentaireError: false,
       dateError: false,
-  }  
-  )
-  const handleErrors = () => {
+  });
 
+  // Validation du formulaire
+  const handleErrors = () => {
     setErrors({
       articleError: false,
       typeError: false,
@@ -193,32 +186,17 @@ function MovementForm() {
 
     let hasError = false;
 
-    if (!movementsInfo.article.trim() ) {
-      setErrors((prevErrors) => ({ ...prevErrors, articleError: true }));
-      hasError = true;
-    }
-    if (!movementsInfo.type.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, typeError: true }));
-      hasError = true;
-    }
+    // Vérifications
+    if (!movementsInfo.article.trim() ) { setErrors(prev => ({ ...prev, articleError: true })); hasError = true; }
+    if (!movementsInfo.type.trim()) { setErrors(prev => ({ ...prev, typeError: true })); hasError = true; }
+    if (movementsInfo.quantite <= 0) { setErrors(prev => ({ ...prev, quantiteError: true })); hasError = true; }
+    if (!movementsInfo.commentaire.trim()) { setErrors(prev => ({ ...prev, commentaireError: true })); hasError = true; }
+    if (!movementsInfo.date.trim()) { setErrors(prev => ({ ...prev, dateError: true })); hasError = true; }
 
-    if (movementsInfo.quantite <= 0) {
-      setErrors((prevErrors) => ({ ...prevErrors, quantiteError: true }));
-      hasError = true;
-    }
-    if (!movementsInfo.commentaire.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, commentaireError: true }));
-      hasError = true;
-    }
-
-    if (!movementsInfo.date.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, dateError: true }));
-      hasError = true;
-    }
-
-    if (hasError) return true;
-    return false;
+    return hasError;
   }
+
+  // Soumission du formulaire
   const handleSubmit = (e)=>{
     e.preventDefault();
     const hasErrors = handleErrors();
@@ -226,7 +204,7 @@ function MovementForm() {
       console.log("Le formulaire contient des erreurs. Veuillez les corriger avant de soumettre.");
       return;
     } 
-    handleAddMovement()
+    handleAddMovement();
     setMovementsInfos({
       id: null,
       article: "",
@@ -234,23 +212,26 @@ function MovementForm() {
       quantite: 0,
       commentaire: "",
       date : ""
-      });
+    });
   }
+
+  // Navigation
   const navigate = useNavigate();
   const handleNavigate = () => {
     navigate(-1);
   }
-// hado dyl date bach yb9a m7dod ra fsimana li fiha 7na
-const today = new Date()
-const endOfWeek = new Date(today)
-endOfWeek.setDate(today.getDate() + 7)
-const minDate = today.toISOString().split("T")[0]
-const maxDate = endOfWeek.toISOString().split("T")[0]
+
+  // Dates min et max pour le formulaire
+  const today = new Date();
+  const endOfWeek = new Date(today);
+  endOfWeek.setDate(today.getDate() + 7);
+  const minDate = today.toISOString().split("T")[0];
+  const maxDate = endOfWeek.toISOString().split("T")[0];
+
+  // Loader pendant récupération
+  if (loading) return <p>Chargement des Movements...</p>;
 
 
-
-
- if (loading) return <p>Chargement des Movements...</p>;
   return (
     <div className={`${styles.mainDiv}`}>
       <div className="max-w-8xl w-full mx-auto">

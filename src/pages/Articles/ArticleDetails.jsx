@@ -1,9 +1,10 @@
-import { useState, useEffect, React } from 'react'
-import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
+import { MdDelete } from "react-icons/md";
 import { FaList } from "react-icons/fa6";
 import { MdModeEdit } from "react-icons/md";
+import { deleteArticle } from '../../services/articlesSlice';
 import axios from 'axios';
 
 const styles = {
@@ -36,41 +37,82 @@ const styles = {
 
 function ArticleDetails() {
 
+  // Récupérer les articles depuis le store Redux
   const articlesState = useSelector((state) => state.articles.articles);
 
+  // Récupérer le dispatch pour envoyer des actions Redux
+  const dispatcher = useDispatch();
+
+  // State local pour stocker les articles récupérés depuis l'API
   const [articles, setArticles] = useState([]);
+
+  // State pour gérer le chargement des données
   const [loading, setLoading] = useState(true);
 
+  // useEffect pour récupérer les articles depuis l'API au chargement du composant
   useEffect(() => {
     const API_URL = 'http://localhost:4000/articles'; 
-    setLoading(true);
+    setLoading(true); // Activer le loader pendant la récupération
 
     axios.get(API_URL)
-    .then(response => {
-
-    setArticles(response.data);
-    })
-
-    .catch(error => {
-    console.error("Erreur GET:", error);
-    })
-
-    .finally(() => {
-    setLoading(false);
-    });
+      .then(response => {
+        // Stocker les articles récupérés dans le state local
+        setArticles(response.data);
+      })
+      .catch(error => {
+        console.error("Erreur GET:", error); // Afficher les erreurs éventuelles
+      })
+      .finally(() => {
+        setLoading(false); // Désactiver le loader une fois terminé
+      });
   }, []);
 
+  // Récupérer l'id depuis les paramètres de l'URL
   const { id } = useParams();
+
+  // Chercher l'article correspondant à l'id dans le store Redux
   const article = articlesState.find((art) => art.id == id);
+
+  // Hook pour la navigation
   const navigate = useNavigate();
+
+  // Fonction pour revenir à la page précédente
   const handleNavigate = () => {
     navigate(-1);
   }
+
+  // Fonction pour naviguer vers la page d'édition de l'article
   const navigateEdit = () => {
     navigate(`/articles/edit/${article.id}`);
   }
 
- if (loading) return <p>Chargement des Articles...</p>;
+  // Fonction pour supprimer l'article depuis l'API
+  const deleteFromApi = (id) => {
+    const API_URL = `http://localhost:4000/articles/${id}`;
+
+    axios.delete(API_URL)
+      .then(() => {
+        console.log("deleted with success");
+      })
+      .catch(error => {
+        console.error("Erreur DELETE:", error);
+      });
+  };
+
+  // Fonction pour supprimer un article à la fois du store Redux et de l'API
+  const handleDelete = (id) => {
+    dispatcher(deleteArticle(id)); // Supprimer du store Redux
+    deleteFromApi(id);             // Supprimer depuis l'API
+    navigate(-1);                  // Retourner à la page précédente
+  }
+
+  // Afficher un message de chargement si les articles sont en cours de récupération
+  if (loading) return <p>Chargement des Articles...</p>;
+
+  // Afficher un message si l'article n'existe pas ou a été supprimé
+  if (!article) {
+    return <p className="text-center mt-10">Article introuvable ou supprimé.</p>;
+  }
 
   return (
     <div className={`${styles.mainDiv}`}>
@@ -112,6 +154,10 @@ function ArticleDetails() {
                     <span className="ml-2 text-gray-600"> {article.fournisseur} </span>
                 </div>
                 
+            </div>
+            <div className="mt-8 flex justify-center gap-3">
+              <button onClick={() => handleDelete(article.id)} className={`flex justify-center w-full items-center gap-2 cursor-pointer px-6 py-3 ${styles.red.bgRed} ${styles.red.bgRedHover}
+                          text-white rounded-xl shadow-md transition`}><span><MdDelete /></span>Supprimer l’article</button>
             </div>
             <div className="mt-8 flex justify-center gap-3">
               <button onClick={navigateEdit} className={`flex justify-center w-full items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}

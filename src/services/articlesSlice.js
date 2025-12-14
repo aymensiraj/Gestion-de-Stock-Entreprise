@@ -20,16 +20,20 @@ const articlesSlice = createSlice({
   name: "articles",
   initialState,
   reducers: {
+    // ajouter article fonction
     addArticle: (state, action) => {
       state.articles.push(action.payload);
     },
 
+    // edit article fonction
     updateArticle: (state, action) => {
       const index = state.articles.findIndex(a => a.id === action.payload.id);
       if (index !== -1) {
         state.articles[index] = action.payload;
       }
     },
+
+    // edit quantite fonction
     updateQuantite : (state,action) => {
       const index = state.articles.findIndex(a => a.name === action.payload.article);
       if (action.payload.type == "Entrée") {
@@ -38,8 +42,12 @@ const articlesSlice = createSlice({
       if (action.payload.type=="Sortie") {
         state.articles[index].quantity -= action.payload.quantite;
       }
-    }
-    
+    },
+
+    // supprimer article fonction
+    deleteArticle: (state, action) => {
+      state.articles = state.articles.filter(a => a.id !== action.payload);
+    },
   }
 });
 

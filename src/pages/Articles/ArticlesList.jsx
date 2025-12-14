@@ -1,4 +1,3 @@
-import React from 'react'
 import ArticlesTable from '../../components/tables/ArticlesTable'
 
 

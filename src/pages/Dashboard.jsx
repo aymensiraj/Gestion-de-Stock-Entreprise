@@ -1,7 +1,6 @@
-import { Link } from "react-router-dom"
-import React from 'react'
 import { useSelector } from 'react-redux';
 import MouvementsJourChart from "../components/chart";
+
 const styles = {
   gray : {
     textGray800 : "text-gray-800",
@@ -26,16 +25,65 @@ const styles = {
 };
 
 function Dashboard() {
-const articlesState = useSelector((state) => state.articles.articles);
-const movementsState = useSelector((state) => state.movements.movements);
+    // Récupérer les articles et movements depuis le store Redux
+    const articlesState = useSelector((state) => state.articles.articles);
+    const movementsState = useSelector((state) => state.movements.movements);
 
-const totalQuantity = articlesState.reduce((total, article) => total + parseInt(article.quantity), 0);
+    // Calculer la quantité totale de tous les articles
+    const totalQuantity = articlesState.reduce(
+    (total, article) => total + parseInt(article.quantity),
+    0
+    );
 
-const lowStockArticles = articlesState.filter(article => article.quantity < article.seuil_min).length;
-const movementStateLength = movementsState.length;
+    // Compter le nombre d'articles en stock inférieur au seuil minimal
+    const lowStockArticles = articlesState.filter(
+    article => article.quantity < article.seuil_min
+    ).length;
 
-const last3lowStockArticles = articlesState.filter(article => article.quantity < article.seuil_min * 1.3).slice(0, 3);
+    // Obtenir le nombre total de movements
+    const movementStateLength = movementsState.length;
 
+    // Obtenir les 3 premiers articles dont le stock est proche du seuil minimal (x1.3)
+    const last3lowStockArticles = articlesState
+    .filter(article => article.quantity < article.seuil_min * 1.3)
+    .slice(0, 3);
+
+
+
+    // Tableau pour stocker la consommation des articles
+    const consumption = {};
+
+    // Parcourir tous les movements pour calculer la consommation (Sorties)
+    movementsState.forEach(movement => {
+    if (movement.type === "Sortie") {
+        if (!consumption[movement.article]) {
+        consumption[movement.article] = movement.quantite; // Initialiser si pas encore présent
+        } else {
+        consumption[movement.article] += movement.quantite; // Ajouter à la consommation existante
+        }
+    }
+    });
+
+    // Obtenir les 5 articles les plus consommés
+    const top5Ids = Object.entries(consumption)
+    .sort((a, b) => b[1] - a[1]) // Trier par quantité décroissante
+    .slice(0, 5); // Prendre les 5 premiers
+
+    // Récupérer les infos complètes des articles les plus consommés
+    const top5Articles = top5Ids.map(([id, total]) => {
+    const article = articlesState.find(article => article.name == id); // Trouver l'article correspondant
+    if (!article) {
+        // Si l'article n'existe plus, on peut l'ignorer ou mettre un placeholder
+        return {
+        name: "Article supprimé",
+        total
+        };
+    } 
+    return {
+        name: article.name, // Nom de l'article
+        total              // Quantité totale consommée
+    };
+    });
 
 
  return (
@@ -83,12 +131,19 @@ const last3lowStockArticles = articlesState.filter(article => article.quantity <
                 <p className={`${styles.gray.textGray700}`}>Aucune alerte de stock faible.</p>
                 ) : (
                 last3lowStockArticles.map((article) =>
-                    article.quantity < article.seuil_min ? (
+                    (article.quantity <= article.seuil_min && article.quantity > 0) ? (
                     <div key={article.id} className="flex justify-between bg-red-50 border border-red-200 p-4 rounded-lg">
                         <span className={`font-medium ${styles.gray.textGray800}`}>
                         {article.name} (REF-{article.reference})
                         </span>
                         <span className={`${styles.red.spanRed} font-semibold`}>Il n'en reste que {article.quantity} </span>
+                    </div>
+                    ) : article.quantity == 0 ? (
+                    <div key={article.id} className="flex justify-between bg-red-50 border border-red-200 p-4 rounded-lg">
+                        <span className={`font-medium ${styles.gray.textGray800}`}>
+                        {article.name} (REF-{article.reference})
+                        </span>
+                        <span className={`${styles.red.spanRed} font-semibold`}>Rupture de stock</span>
                     </div>
                     ) : (
                     <div key={article.id} className="flex justify-between bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
@@ -115,7 +170,20 @@ const last3lowStockArticles = articlesState.filter(article => article.quantity <
         <div className={`${styles.cardStyle} cursor-pointer`}>
             <h2 className={`text-2xl font-bold mb-3 ${styles.red.textRed}`}>Les 5 produits les plus consommés</h2>
 
-            <ul className="space-y-4">
+            <ul className="space-y-3 bg-white p-4 rounded-lg shadow-sm border mt-5">
+            {top5Articles.length ? (
+                top5Articles.map((article, index) => (
+                <li
+                    key={index}
+                    className="flex justify-between items-center px-3 py-2 rounded hover:bg-gray-50 transition"
+                >
+                    <span className="font-medium text-gray-800">{article.name}</span>
+                    <span className="text-gray-500 font-semibold">{article.total} movements</span>
+                </li>
+                ))
+            ) : (
+                <p className="text-gray-500 text-center py-4">Aucun produit consommé récemment</p>
+            )}
             </ul>
         </div>
 

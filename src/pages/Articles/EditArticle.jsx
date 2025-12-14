@@ -1,4 +1,4 @@
-import { useState, useEffect, React } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { FaList } from "react-icons/fa6";
 import axios from 'axios';
@@ -40,70 +40,77 @@ const styles = {
 
 function AddArticle() {
 
-const articlesState = useSelector((data) => data.articles.articles);
+  // Récupérer les articles depuis le store Redux
+  const articlesState = useSelector((data) => data.articles.articles);
 
+  // Récupérer l'id depuis l'URL
   const { id } = useParams();
+
+  // Hook pour la navigation
   const navigate = useNavigate();
   const handleNavigate = () => {
-    navigate(-1);
+    navigate(-1); // Retour à la page précédente
   }
 
-const [articleInfos, setArticleInfos] = useState({
-  id: "",
-  name: "",
-  reference: "",
-  category: "",
-  quantity: 0,
-  unit: "",
-  seuil_min: 0,
-  fournisseur: "",
-});
+  // State pour stocker les infos du formulaire
+  const [articleInfos, setArticleInfos] = useState({
+    id: "",
+    name: "",
+    reference: "",
+    category: "",
+    quantity: 0,
+    unit: "",
+    seuil_min: 0,
+    fournisseur: "",
+  });
 
-
-useEffect(() => {
-  if (articlesState.length > 0 && id) {
-    const article = articlesState.find((art) => art.id == id);
-    if (article) {
-      setArticleInfos({
-        id: article.id,
-        name: article.name,
-        reference: article.reference,
-        category: article.category,
-        quantity: Number(article.quantity),
-        unit: article.unit,
-        seuil_min: Number(article.seuil_min),
-        fournisseur: article.fournisseur,
-      });
+  // Remplir le formulaire avec les données de l'article à éditer
+  useEffect(() => {
+    if (articlesState.length > 0 && id) {
+      const article = articlesState.find((art) => art.id == id);
+      if (article) {
+        setArticleInfos({
+          id: article.id,
+          name: article.name,
+          reference: article.reference,
+          category: article.category,
+          quantity: Number(article.quantity),
+          unit: article.unit,
+          seuil_min: Number(article.seuil_min),
+          fournisseur: article.fournisseur,
+        });
+      }
     }
-  }
-}, [articlesState, id]);
+  }, [articlesState, id]);
 
- const handlePut = (id) => {
-  console.log(id)
-	const API_URL = `http://localhost:4000/articles/${id}`;
- 
-	const updatedArticle = {
-    id: articleInfos.id,
-    name: articleInfos.name,
-    reference: articleInfos.reference,
-    category: articleInfos.category,
-    quantity: Number(articleInfos.quantity),
-    unit: articleInfos.unit,
-    seuil_min: Number(articleInfos.seuil_min),
-    fournisseur: articleInfos.fournisseur,
-	};
- 
- 	axios.put(API_URL, updatedArticle)
+  // Fonction pour mettre à jour l'article dans l'API
+  const handlePut = (id) => {
+    console.log(id)
+    const API_URL = `http://localhost:4000/articles/${id}`;
+    const updatedArticle = {
+      id: articleInfos.id,
+      name: articleInfos.name,
+      reference: articleInfos.reference,
+      category: articleInfos.category,
+      quantity: Number(articleInfos.quantity),
+      unit: articleInfos.unit,
+      seuil_min: Number(articleInfos.seuil_min),
+      fournisseur: articleInfos.fournisseur,
+    };
+    axios.put(API_URL, updatedArticle)
+      .then(response => {console.log("Objet mis à jour:", response.data);})
+      .catch(error => {console.error("Erreur PUT:", error);});
+  };
 
- 	.then(response => {console.log("Objet mis à jour:", response.data);})
-
- 	.catch(error => {console.error("Erreur PUT:", error);});
- };
-
+  // Récupération des fournisseurs, catégories et unités depuis le store Redux
   const fournisseurs = useSelector((data) => data.articles.fournisseurs);
   const categories = useSelector((data) => data.articles.categories);
   const unites = useSelector((data) => data.articles.unites);
+
+  // Dispatch Redux
   const dispatch = useDispatch();
+
+  // State pour les erreurs du formulaire
   const [errors, setErrors] = useState({
     nameError: false,
     referenceError: false,
@@ -114,8 +121,8 @@ useEffect(() => {
     fournisseurError: false,
   });
 
+  // Fonction pour mettre à jour l'article dans le store Redux
   const handleEditArticle = () => {
-
     const newArticle = {
       id: articleInfos.id,
       name: articleInfos.name,
@@ -126,8 +133,10 @@ useEffect(() => {
       seuil_min: Number(articleInfos.seuil_min),
       fournisseur: articleInfos.fournisseur,
     };
-    dispatch(updateArticle(newArticle));
+    dispatch(updateArticle(newArticle)); // Mise à jour dans Redux
     console.log("Article changé:", newArticle);
+
+    // Réinitialiser le formulaire
     setArticleInfos({
       id: null,
       name: "",
@@ -140,6 +149,7 @@ useEffect(() => {
     });
   }
 
+  // Gestion des changements dans le formulaire
   const HandleChange = (e) => {
     setArticleInfos({
       ...articleInfos,
@@ -147,8 +157,8 @@ useEffect(() => {
     });
   }
 
+  // Vérification des erreurs du formulaire
   const handleErrors = () => {
-
     setErrors({
       nameError: false,
       referenceError: false,
@@ -157,43 +167,22 @@ useEffect(() => {
       unitError: false,
       seuil_minError: false,
       fournisseurError: false,
-    })
+    });
 
     let hasError = false;
 
-    if (!articleInfos.name.trim() || articleInfos.name.length < 2) {
-      setErrors((prevErrors) => ({ ...prevErrors, nameError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.reference.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, referenceError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.category.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, categoryError: true }));
-      hasError = true;
-    }
-    if (articleInfos.quantity <= 0) {
-      setErrors((prevErrors) => ({ ...prevErrors, quantityError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.unit.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, unitError: true }));
-      hasError = true;
-    }
-    if (Number(articleInfos.seuil_min) < 0 || Number(articleInfos.seuil_min) > Number(articleInfos.quantity)) {
-      setErrors((prevErrors) => ({ ...prevErrors, seuil_minError: true }));
-      hasError = true;
-    }
-    if (!articleInfos.fournisseur.trim()) {
-      setErrors((prevErrors) => ({ ...prevErrors, fournisseurError: true }));
-      hasError = true;
-    }
+    if (!articleInfos.name.trim() || articleInfos.name.length < 2) { setErrors(prev => ({ ...prev, nameError: true })); hasError = true; }
+    if (!articleInfos.reference.trim()) { setErrors(prev => ({ ...prev, referenceError: true })); hasError = true; }
+    if (!articleInfos.category.trim()) { setErrors(prev => ({ ...prev, categoryError: true })); hasError = true; }
+    if (articleInfos.quantity <= 0) { setErrors(prev => ({ ...prev, quantityError: true })); hasError = true; }
+    if (!articleInfos.unit.trim()) { setErrors(prev => ({ ...prev, unitError: true })); hasError = true; }
+    if (Number(articleInfos.seuil_min) < 0 || Number(articleInfos.seuil_min) > Number(articleInfos.quantity)) { setErrors(prev => ({ ...prev, seuil_minError: true })); hasError = true; }
+    if (!articleInfos.fournisseur.trim()) { setErrors(prev => ({ ...prev, fournisseurError: true })); hasError = true; }
 
-    if (hasError) return true;
-    return false;
+    return hasError;
   }
 
+  // Soumission du formulaire
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -203,11 +192,12 @@ useEffect(() => {
       return;
     } 
     
-    handlePut(articleInfos.id);
-    handleEditArticle();
-    navigate(-1);
+    handlePut(articleInfos.id);  // Mise à jour API
+    handleEditArticle();          // Mise à jour Redux
+    navigate(-1);                 // Retour à la page précédente
   }
 
+  // Réinitialiser le formulaire
   const handleReset = () => {
     setArticleInfos({
       id: null,
@@ -221,20 +211,31 @@ useEffect(() => {
     });
   }
 
+
   return (
     <div className={`${styles.mainDiv}`}>
       <div className="max-w-8xl w-full mx-auto">
         
         {/* Header */}
-        <div className="flex justify-between items-center mb-8 px-5">
-          <h1 className={`text-5xl font-bold text-center ${styles.red.textRed} tracking-tight`}>Ajouter un Article</h1>
-          <div className="flex gap-3">
-            <button onClick={() => navigate(`/articles`)} className={`flex justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
-                        text-white rounded-xl shadow-md transition`}><span><FaList /></span>Tableau des Articles</button>
-            <button onClick={handleNavigate} className={`flex justify-between items-center gap-2 cursor-pointer px-6 py-3 ${styles.green.bgGreen600} ${styles.green.bgGreenHover}
-                        text-white rounded-xl shadow-md transition`}><span><FaWpforms /></span>Article Details</button>
+        <div className="flex flex-col md:flex-row justify-between items-center mb-8 px-2 md:px-5 gap-4 md:gap-0">
+          <h1 className={`text-3xl sm:text-4xl md:text-5xl font-bold text-center md:text-left ${styles.red.textRed} tracking-tight`}>Ajouter un Article</h1>
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <button
+              onClick={() => navigate(`/articles`)}
+              className={`flex justify-center md:justify-between items-center gap-2 cursor-pointer px-6 py-3 w-full sm:w-auto
+                ${styles.green.bgGreen600} ${styles.green.bgGreenHover} text-white rounded-xl shadow-md transition`}>
+              <span><FaList /></span>
+              Tableau des Articles
+            </button>
+
+            <button
+              onClick={handleNavigate} className={`flex justify-center md:justify-between items-center gap-2 cursor-pointer px-6 py-3 w-full sm:w-auto
+                ${styles.green.bgGreen600} ${styles.green.bgGreenHover} text-white rounded-xl shadow-md transition`}
+            ><span><FaWpforms /></span>Article Details</button>
           </div>
         </div>
+
 
         {/* Card */}
         <div className={`${styles.cardStyle}`}>

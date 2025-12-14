@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../assets/images/logo.jpeg';
-import { HiMenu, HiX } from 'react-icons/hi'; // icons for burger
+import { HiMenu, HiX } from 'react-icons/hi'; 
 
 const styles = {
   links: {
